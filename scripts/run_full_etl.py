@@ -44,19 +44,18 @@ from etl.load_games_and_boxscores import load_games_and_boxscores
 from etl.load_inactive import load_inactive_players
 from etl.load_metadata import (
     finalize_etl_run,
+    finalize_etl_step,
     start_etl_run,
     start_etl_step,
-    finalize_etl_step,
     track_all_csv_data_versions,
     write_etl_run_report,
 )
+from etl.load_pbp import load_pbp_events
 from etl.load_player_seasons import load_all_player_seasons
 from etl.load_team_seasons import load_all_team_seasons
-from etl.load_pbp import load_pbp_events
-from etl.logging_utils import get_logger, log_etl_event, log_structured
+from etl.logging_utils import get_logger, log_structured
 from etl.schema_drift import write_schema_drift_report
 from etl.validate import run_all_validations
-
 
 logger = get_logger(__name__)
 
@@ -80,7 +79,10 @@ def _parse_args(config: Config) -> argparse.Namespace:
         "--season",
         action="append",
         dest="seasons",
-        help="Season end year for incremental_by_season (can be specified multiple times)",
+        help=(
+            "Season end year for incremental_by_season "
+            "(can be specified multiple times)"
+        ),
     )
     parser.add_argument(
         "--start-date",
@@ -450,7 +452,8 @@ def main() -> int:
                 loader_module="etl.validate",
             )
             try:
-                # run_all_validations handles its own reporting; pass etl_run_id when non-zero.
+                # run_all_validations handles its own reporting;
+                # pass etl_run_id when non-zero.
                 run_all_validations(conn, etl_run_id=etl_run_id or None)
                 finalize_etl_step(
                     conn,
@@ -471,7 +474,8 @@ def main() -> int:
         # Optional: schema drift summary report when expectations enabled
         if expectations and expectations.csv_sources:
             try:
-                # Detailed per-loader checks are done inside loaders; here we only ensure report dir.
+                # Detailed per-loader checks are done inside loaders;
+                # here we only ensure report dir.
                 write_schema_drift_report(etl_run_id or None, issues=step_issues)
             except Exception:  # noqa: BLE001
                 pass

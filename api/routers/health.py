@@ -61,7 +61,7 @@ async def _check_migrations() -> ReadinessCheck:
         try:
             # Check existence of schema_migrations table by a lightweight query.
             result = await session.execute(
-                text("SELECT filename FROM schema_migrations " "ORDER BY filename ASC")
+                text("SELECT filename FROM schema_migrations ORDER BY filename ASC")
             )
         except SQLAlchemyError as exc:
             msg = (

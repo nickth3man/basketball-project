@@ -48,7 +48,10 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
     if len(_rate_limit_store[client_ip]) >= RATE_LIMIT_REQUESTS:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Rate limit exceeded: {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s",
+            detail=(
+                f"Rate limit exceeded: {RATE_LIMIT_REQUESTS} requests per "
+                f"{RATE_LIMIT_WINDOW}s"
+            ),
             headers={"Retry-After": str(RATE_LIMIT_WINDOW)},
         )
 

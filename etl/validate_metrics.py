@@ -1,24 +1,3 @@
-from __future__ import annotations
-
-"""
-Lightweight metrics sanity validation harness.
-
-Usage (non-interactive):
-
-    python -m etl.validate_metrics
-
-Behavior:
-
-- Uses the same configuration mechanism as other ETL modules.
-- Connects via etl.db.get_connection / etl.db.release_connection.
-- Runs cheap range / plausibility checks over advanced metric views.
-- Logs out-of-bounds rows (capped) and exits non-zero on extreme anomalies.
-- Does not mutate data or depend on API/front-end code.
-
-These checks are intentionally broad and permissive. They are guards
-against obviously broken ETL/math, not authoritative analytics.
-"""
-
 from typing import Tuple
 
 from psycopg import Connection
@@ -28,11 +7,6 @@ from .db import get_connection, release_connection
 from .logging_utils import get_logger, log_structured
 
 logger = get_logger(__name__)
-
-
-# -----------------------
-# Helper query primitives
-# -----------------------
 
 
 def _sample_out_of_range(

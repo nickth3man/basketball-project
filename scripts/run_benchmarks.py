@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Simple performance benchmark runner for the local API.
 
@@ -42,6 +40,8 @@ Constraints:
 - Uses only standard library + urllib to avoid new dependencies.
 - Non-fatal on individual endpoint failures; marks them in output.
 """
+
+from __future__ import annotations
 
 import json
 import os

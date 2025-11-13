@@ -253,7 +253,8 @@ def check_awards_and_draft(conn: Connection) -> None:
     Sanity checks for awards and draft tables.
     These are soft checks (no FK constraints enforced here).
     """
-    # Ensure awards/draft do not reference obviously missing players when ids are present.
+    # Ensure awards/draft do not reference obviously missing players
+    # when ids are present.
     _fail_if_any(
         conn,
         """

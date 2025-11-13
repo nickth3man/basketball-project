@@ -13,7 +13,7 @@ def client() -> TestClient:
     # schema/shape-only and must not mutate data.
     os.environ.setdefault(
         "API_PG_DSN",
-        ("postgresql+asyncpg://postgres:postgres" "@localhost:5432/basketball"),
+        ("postgresql+asyncpg://postgres:postgres@localhost:5432/basketball"),
     )
     app = create_app()
     return TestClient(app)

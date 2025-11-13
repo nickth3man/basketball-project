@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Optional, Set
 
 import yaml
-
 from api.models_v2 import MetricAggregationFunctionV2, MetricRefV2
 
 logger = logging.getLogger(__name__)
@@ -129,8 +128,7 @@ def _build_alias_index(metrics: Dict[str, Any]) -> Dict[str, str]:
         aliases = metric.get("aliases") or []
         if not isinstance(aliases, Iterable):
             raise RegistryLoadError(
-                "Metric "
-                f"'{metric_id}': aliases must be a list of strings if present",
+                f"Metric '{metric_id}': aliases must be a list of strings if present",
             )
         for alias in aliases:
             if not isinstance(alias, str) or not alias:
@@ -278,8 +276,7 @@ def _normalize_aggregation(
     allowed = metric.get("allowed_aggregations") or []
     if agg_value not in allowed:
         raise InvalidAggregationError(
-            "Aggregation "
-            f"'{agg_value}' is not allowed for metric '{metric.get('id')}'",
+            f"Aggregation '{agg_value}' is not allowed for metric '{metric.get('id')}'",
         )
 
     return agg_value

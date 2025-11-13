@@ -95,7 +95,9 @@ def _upsert_data_version(
         return
 
     sql = """
-        INSERT INTO data_versions (source_name, checksum, last_loaded_etl_run_id, updated_at)
+        INSERT INTO data_versions (
+            source_name, checksum, last_loaded_etl_run_id, updated_at
+        )
         VALUES (%s, %s, %s, NOW())
         ON CONFLICT (source_name)
         DO UPDATE SET
@@ -142,7 +144,10 @@ def start_etl_run(
     expectations_version = expectations.version if expectations is not None else None
 
     sql = """
-        INSERT INTO etl_runs (job_name, mode, params, status, started_at, created_by, expectations_version)
+        INSERT INTO etl_runs (
+            job_name, mode, params, status, started_at,
+            created_by, expectations_version
+        )
         VALUES (%s, %s, %s::jsonb, %s, %s, %s, %s)
         RETURNING etl_run_id
     """

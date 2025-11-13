@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+import os
+
+import pytest
+from api.main import create_app
+from fastapi.testclient import TestClient
+
 """
 Smoke tests for /api/v1/tools/* endpoints.
 
@@ -9,8 +15,10 @@ These tests intentionally:
 - Do NOT depend on large or specific datasets.
 """
 
-from api.main import create_app
-from fastapi.testclient import TestClient
+pytestmark = pytest.mark.skipif(
+    os.getenv("API_SMOKE_SKIP_DB", "").lower() == "true",
+    reason="DB not available; skipping integration-style tools smoke tests",
+)
 
 app = create_app()
 client = TestClient(app)

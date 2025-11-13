@@ -1,4 +1,4 @@
-import "./styles/globals.css";
+import "../styles/globals.css";
 import { ReactNode } from "react";
 import { LayoutShell } from "../components/LayoutShell";
 

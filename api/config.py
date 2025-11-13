@@ -17,7 +17,7 @@ class ApiSettings(BaseSettings):
     # Async SQLAlchemy-style PostgreSQL DSN.
     # Default matches local development; override via API_PG_DSN.
     pg_dsn: str = Field(
-        default=("postgresql+asyncpg://postgres:postgres" "@localhost:5432/basketball"),
+        default="postgresql+asyncpg://basketball:basketball@localhost:5433/basketball",
         description="Database connection string for async SQLAlchemy engine.",
     )
 

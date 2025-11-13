@@ -9,12 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.db import (
     build_pagination_query,
     build_players_query,
-    get_db,
-    get_pagination,
     parse_bool,
     player_season_pg_table,
     player_season_table,
     players_table,
+)
+from api.deps import (
+    get_db,
+    get_pagination,
 )
 from api.models import (
     ErrorResponse,

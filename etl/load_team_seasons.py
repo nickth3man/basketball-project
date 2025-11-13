@@ -234,7 +234,8 @@ def load_team_season_hub(config: Config, conn: Connection) -> None:
         )
         rows = cur.fetchall()
 
-    # Build lookup: (team_id, season_id, is_playoffs, is_league_average) -> team_season_id
+    # Build lookup: (team_id, season_id, is_playoffs, is_league_average)
+    # -> team_season_id
     ts_map = {}
     for (
         team_id,

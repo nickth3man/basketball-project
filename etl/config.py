@@ -57,14 +57,13 @@ class Config:
         # Path traversal protection
         if any(char in filename for char in ["..", "/", "\\"]):
             raise ValueError(
-                f"Invalid filename '{filename}': "
-                "path separators and '..' not allowed"
+                f"Invalid filename '{filename}': path separators and '..' not allowed"
             )
 
         # Check if filename is absolute path (security risk)
         if os.path.isabs(filename):
             raise ValueError(
-                f"Invalid filename '{filename}': " "absolute paths not allowed"
+                f"Invalid filename '{filename}': absolute paths not allowed"
             )
 
         if self.allowed_csv_files and filename not in self.allowed_csv_files:

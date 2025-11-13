@@ -1,25 +1,3 @@
-from __future__ import annotations
-
-"""
-Lightweight DB-level validation harness.
-
-Usage (non-interactive):
-
-    python -m etl.validate_data
-
-Behavior:
-
-- Uses the same configuration mechanism as other ETL modules.
-- Connects via etl.db.get_connection / etl.db.release_connection.
-- Runs structural, referential, and basic summary checks.
-- Prints human-readable messages.
-- Exits with code 0 on success, non-zero on fatal issues.
-
-This module is intentionally conservative:
-- It does not import API or frontend modules.
-- It does not mutate data.
-"""
-
 from typing import Iterable, List
 
 from psycopg import Connection
@@ -194,8 +172,7 @@ def run_referential_checks(conn: Connection) -> List[str]:
     if cnt:
         fatal_errors.append(
             (
-                "Found {count} orphan "
-                "player_season.player_id not in players.player_id"
+                "Found {count} orphan player_season.player_id not in players.player_id"
             ).format(count=cnt),
         )
 

@@ -385,7 +385,8 @@ def load_boxscore_team(
         _games_subset = games_df  # noqa: F841
         if mode == "incremental_by_season" and mode_params.get("seasons"):
             _seasons = mode_params["seasons"]  # noqa: F841
-            # No direct season_end_year in games_df snapshot here; assume games filtered earlier.
+            # No direct season_end_year in games_df snapshot here;
+            # assume games filtered earlier.
             # We conservatively rely on line_df already restricted via prior games load.
             pass
         # For date_range, same assumption; primary slicing done in games.

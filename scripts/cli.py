@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Unified CLI for the Local Basketball-Reference + Stathead-style Clone.
 
@@ -26,6 +24,8 @@ Notes:
   are preserved and remain directly runnable.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import os
@@ -37,6 +37,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from etl.config import get_config as get_etl_config
 from etl.db import (
     get_connection as etl_get_connection,
+)
+from etl.db import (
     release_connection as etl_release_connection,
 )
 from etl.validate import (
@@ -692,7 +694,7 @@ def build_parser() -> argparse.ArgumentParser:
     # status
     p_status = subparsers.add_parser(
         "status",
-        help=("Run diagnostics (DB, ETL metadata, " "metrics registry, API wiring)"),
+        help=("Run diagnostics (DB, ETL metadata, metrics registry, API wiring)"),
     )
     p_status.set_defaults(func=cmd_status)
 

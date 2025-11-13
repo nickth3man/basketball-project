@@ -1,28 +1,3 @@
-from __future__ import annotations
-
-"""
-Schema drift detection utilities.
-
-Responsibilities:
-- Compare actual CSV DataFrame schema vs configured expectations.
-- Compare actual DB table schema vs configured expectations.
-- Emit structured issue dicts:
-    {
-        "source_type": "csv" | "table",
-        "source_id": str,
-        "issue_type": str,
-        "severity": "info" | "warn" | "error",
-        "details": dict,
-        "etl_run_id": int | None,
-    }
-- Log issues via logging_utils helpers.
-- Write JSON reports under var/reports/etl/schema_drift_<etl_run_id_or_ts>.json.
-
-Notes:
-- Best-effort; never raises due to missing expectations or metadata.
-- Callers may choose to enforce `error` severities in strict modes.
-"""
-
 import json
 import os
 import time

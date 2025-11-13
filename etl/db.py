@@ -346,7 +346,9 @@ async def table_exists(conn: Connection, table_name: str) -> bool:
     """Check if table exists in database."""
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = %s)",
+            "SELECT EXISTS ("
+            "SELECT 1 FROM information_schema.tables WHERE table_name = %s"
+            ")",
             (table_name,),
         )
         return cur.fetchone()[0]

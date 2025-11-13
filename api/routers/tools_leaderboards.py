@@ -34,8 +34,10 @@ from api.models import (
 
 router = APIRouter(tags=["tools", "leaderboards"])
 
-# [BUG][RELIABILITY][P1] Table definitions mix Column() (correct) and column() (incorrect).
-# column() is for query expressions, not table definitions. Causes runtime errors.
+# [BUG][RELIABILITY][P1] Table definitions mix Column() (correct)
+# and column() (incorrect).
+# column() is for query expressions, not table definitions.
+# Causes runtime errors.
 
 player_season_totals_table = Table(
     "player_season_totals",

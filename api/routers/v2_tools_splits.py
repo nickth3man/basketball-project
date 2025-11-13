@@ -58,7 +58,7 @@ def _validate_query(query: SplitsQueryV2) -> None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
-                f"Too many split dimensions requested " f"(max {MAX_SPLIT_DIMENSIONS})"
+                f"Too many split dimensions requested (max {MAX_SPLIT_DIMENSIONS})"
             ),
         )
 

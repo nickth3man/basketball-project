@@ -12,13 +12,7 @@ def _configure_root_logger() -> None:
 
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        fmt=(
-            "%(asctime)s "
-            "%(levelname)s "
-            "%(name)s "
-            "%(message)s "
-            "[%(filename)s:%(lineno)d]"
-        )
+        fmt=("%(asctime)s %(levelname)s %(name)s %(message)s [%(filename)s:%(lineno)d]")
     )
     handler.setFormatter(formatter)
 

@@ -1,15 +1,3 @@
-from __future__ import annotations
-
-"""
-Helpers for loading ETL expectations from YAML.
-
-Design goals:
-- Centralized expectations for CSV sources and DB tables.
-- Safe defaults: if file is missing or invalid, return empty expectations so
-  existing ETL behavior is preserved.
-- No hard dependency on any specific caller; pure functions with simple types.
-"""
-
 import json
 import logging
 import os
@@ -77,7 +65,8 @@ def _load_yaml(path: str) -> Dict[str, Any]:
         log_structured(
             logger,
             logging.WARNING,
-            "Expectations YAML has unexpected top-level type; running without expectations",
+            "Expectations YAML has unexpected top-level type; "
+            "running without expectations",
             path=path,
             type=str(type(data)),
         )

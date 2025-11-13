@@ -93,13 +93,13 @@ def _load_tool_file(tool_slug: str) -> Dict[str, Any]:
         with path.open("r", encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as exc:
-        msg = "Corrupted saved queries file for tool " f"'{tool_slug}': {exc}"
+        msg = f"Corrupted saved queries file for tool '{tool_slug}': {exc}"
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=msg,
         ) from exc
     except OSError as exc:
-        msg = "Failed to read saved queries for tool " f"'{tool_slug}': {exc}"
+        msg = f"Failed to read saved queries for tool '{tool_slug}': {exc}"
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=msg,
@@ -123,7 +123,7 @@ def _save_tool_file(tool_slug: str, data: Dict[str, Any]) -> None:
             json.dump(data, f, ensure_ascii=False, indent=2)
         os.replace(tmp_path, path)
     except OSError as exc:
-        msg = "Failed to persist saved queries for tool " f"'{tool_slug}': {exc}"
+        msg = f"Failed to persist saved queries for tool '{tool_slug}': {exc}"
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=msg,

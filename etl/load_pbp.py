@@ -136,7 +136,8 @@ def load_pbp_events(config: Config, conn: Connection) -> None:
             if len(parts) != 2:
                 return None
             m, s = int(parts[0]), int(parts[1])
-            # NBA periods: 12 minutes; OT: 5, but here we store raw MM:SS in clk_remaining
+            # NBA periods: 12 minutes; OT: 5, but here we store raw MM:SS in
+            # clk_remaining
             return float(m * 60 + s)
         except Exception:
             return None
