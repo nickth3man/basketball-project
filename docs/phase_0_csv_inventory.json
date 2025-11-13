@@ -1,0 +1,3777 @@
+{
+  "csv_inventory": [
+    {
+      "filename": "csv_files/player.csv",
+      "description": "Master list of players with core identifiers and active status.",
+      "entity_mapping": ["players", "mapping"],
+      "grain": "one row per player (global NBA player_id)",
+      "primary_key_candidates": ["id"],
+      "foreign_key_candidates": [],
+      "columns": [
+        {
+          "name": "id",
+          "type_inferred": "int",
+          "notes": "Primary player identifier used across many sources; aligns with NBA.com-style person_id."
+        },
+        {
+          "name": "full_name",
+          "type_inferred": "string",
+          "notes": "Canonical display name."
+        },
+        {
+          "name": "first_name",
+          "type_inferred": "string",
+          "notes": "Given name."
+        },
+        {
+          "name": "last_name",
+          "type_inferred": "string",
+          "notes": "Family name / surname."
+        },
+        {
+          "name": "is_active",
+          "type_inferred": "int",
+          "notes": "0/1 flag; maps to active status in canonical players dimension."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playerdirectory.csv",
+      "description": "Extended biographical and identifier info for historical and current players.",
+      "entity_mapping": ["players", "mapping"],
+      "grain": "one row per historical player identity (per slug)",
+      "primary_key_candidates": ["slug"],
+      "foreign_key_candidates": [
+        {
+          "column": "slug",
+          "references": "players",
+          "notes": "Text slug used to link to other datasets that follow Basketball-Reference-style slugs."
+        }
+      ],
+      "columns": [
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": "Player full name."
+        },
+        {
+          "name": "from",
+          "type_inferred": "int",
+          "notes": "First season played; season year."
+        },
+        {
+          "name": "to",
+          "type_inferred": "int",
+          "notes": "Last season played; season year."
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": "Position(s)."
+        },
+        {
+          "name": "ht_in_in",
+          "type_inferred": "int",
+          "notes": "Height in inches."
+        },
+        {
+          "name": "wt",
+          "type_inferred": "int",
+          "notes": "Weight in pounds."
+        },
+        {
+          "name": "birth_date",
+          "type_inferred": "date",
+          "notes": "Date of birth."
+        },
+        {
+          "name": "colleges",
+          "type_inferred": "string",
+          "notes": "College(s) attended."
+        },
+        {
+          "name": "hof",
+          "type_inferred": "bool",
+          "notes": "Hall of Fame flag."
+        },
+        {
+          "name": "slug",
+          "type_inferred": "string",
+          "notes": "Primary key for this table; candidate cross-source key for historical player mappings."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/common_player_info.csv",
+      "description": "Detailed per-player bio and roster metadata, aligned with NBA.com commonplayerinfo.",
+      "entity_mapping": ["players", "mapping"],
+      "grain": "one row per player_id (modern/NBA data-centric view)",
+      "primary_key_candidates": ["person_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "person_id",
+          "references": "players",
+          "notes": "Maps to player.csv.id / NBA person_id."
+        },
+        {
+          "column": "team_id",
+          "references": "teams",
+          "notes": "Current/last team; nullable/0 when not on a team."
+        }
+      ],
+      "columns": [
+        {
+          "name": "person_id",
+          "type_inferred": "int",
+          "notes": "Primary player identifier; core key."
+        },
+        {
+          "name": "first_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "last_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "display_first_last",
+          "type_inferred": "string",
+          "notes": "Formatted name."
+        },
+        {
+          "name": "display_last_comma_first",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "display_fi_last",
+          "type_inferred": "string",
+          "notes": "Initial + last."
+        },
+        {
+          "name": "player_slug",
+          "type_inferred": "string",
+          "notes": "Slug used in URLs; mapping key."
+        },
+        {
+          "name": "birthdate",
+          "type_inferred": "datetime",
+          "notes": ""
+        },
+        {
+          "name": "school",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "country",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "last_affiliation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "height",
+          "type_inferred": "string",
+          "notes": "Formatted height."
+        },
+        {
+          "name": "weight",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "season_exp",
+          "type_inferred": "float",
+          "notes": "Seasons of experience."
+        },
+        {
+          "name": "jersey",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "position",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "rosterstatus",
+          "type_inferred": "string",
+          "notes": "Active/Inactive textual."
+        },
+        {
+          "name": "games_played_current_season_flag",
+          "type_inferred": "string",
+          "notes": "Y/N; whether appeared this season."
+        },
+        {
+          "name": "team_id",
+          "type_inferred": "int",
+          "notes": "Current team id."
+        },
+        {
+          "name": "team_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_code",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "playercode",
+          "type_inferred": "string",
+          "notes": "Legacy code; mapping helper."
+        },
+        {
+          "name": "from_year",
+          "type_inferred": "float",
+          "notes": "First year in league."
+        },
+        {
+          "name": "to_year",
+          "type_inferred": "float",
+          "notes": "Last year in league."
+        },
+        {
+          "name": "dleague_flag",
+          "type_inferred": "string",
+          "notes": "Y/N."
+        },
+        {
+          "name": "nba_flag",
+          "type_inferred": "string",
+          "notes": "Y/N."
+        },
+        {
+          "name": "games_played_flag",
+          "type_inferred": "string",
+          "notes": "Y/N."
+        },
+        {
+          "name": "draft_year",
+          "type_inferred": "string",
+          "notes": "Draft year or 'Undrafted'."
+        },
+        {
+          "name": "draft_round",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "draft_number",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "greatest_75_flag",
+          "type_inferred": "string",
+          "notes": "75th anniversary team flag."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playerseasoninfo.csv",
+      "description": "Per-player per-season roster and basic info (team, league, position).",
+      "entity_mapping": ["players", "seasons", "mapping"],
+      "grain": "one row per player-season-team stint (with some TOT rows aggregated)",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": "Links season rows to player dimension."
+        },
+        {
+          "column": "tm",
+          "references": "teams",
+          "notes": "Team abbreviation for that season."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season end year."
+        },
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Unique surrogate key for player-season row."
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": "Player identifier."
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "int",
+          "notes": "Birth year; may be NA."
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": "Position for that season."
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": "Age in that season."
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": "League (BAA/NBA/etc.)."
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team abbreviation or TOT."
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": "Years of experience."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playercareerinfo.csv",
+      "description": "Career summary per player (span and HOF flag).",
+      "entity_mapping": ["players"],
+      "grain": "one row per player (career summary context)",
+      "primary_key_candidates": ["player_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": "Maps to player.csv/common_player_info player id."
+        }
+      ],
+      "columns": [
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": "Player id; primary key."
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": "Name."
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "int",
+          "notes": "Birth year; may be NA."
+        },
+        {
+          "name": "hof",
+          "type_inferred": "bool",
+          "notes": "Hall of Fame flag."
+        },
+        {
+          "name": "num_seasons",
+          "type_inferred": "int",
+          "notes": "Seasons played."
+        },
+        {
+          "name": "first_seas",
+          "type_inferred": "int",
+          "notes": "First season."
+        },
+        {
+          "name": "last_seas",
+          "type_inferred": "int",
+          "notes": "Last season."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/team.csv",
+      "description": "Master list of modern NBA team franchises.",
+      "entity_mapping": ["teams"],
+      "grain": "one row per current franchise",
+      "primary_key_candidates": ["id"],
+      "foreign_key_candidates": [],
+      "columns": [
+        {
+          "name": "id",
+          "type_inferred": "int",
+          "notes": "Franchise/team id; primary key; used across other tables."
+        },
+        {
+          "name": "full_name",
+          "type_inferred": "string",
+          "notes": "Team full name."
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": "Short code; aligns with common abbreviations."
+        },
+        {
+          "name": "nickname",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "state",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "year_founded",
+          "type_inferred": "float",
+          "notes": "First season in NBA/BAA context; float due to source but logically int."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/team_history.csv",
+      "description": "Franchise location/name history by team_id.",
+      "entity_mapping": ["teams", "mapping"],
+      "grain": "one row per team_id and historical city/nickname span",
+      "primary_key_candidates": ["team_id", "city", "nickname", "year_founded"],
+      "foreign_key_candidates": [
+        {
+          "column": "team_id",
+          "references": "teams",
+          "notes": "Links historical names to team dimension."
+        }
+      ],
+      "columns": [
+        {
+          "name": "team_id",
+          "type_inferred": "int",
+          "notes": "Franchise identifier."
+        },
+        {
+          "name": "city",
+          "type_inferred": "string",
+          "notes": "Historical city."
+        },
+        {
+          "name": "nickname",
+          "type_inferred": "string",
+          "notes": "Historical nickname."
+        },
+        {
+          "name": "year_founded",
+          "type_inferred": "int",
+          "notes": "Start year of this identity span."
+        },
+        {
+          "name": "year_active_till",
+          "type_inferred": "int",
+          "notes": "End year of this identity span."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/team_details.csv",
+      "description": "Current team metadata: arena, ownership, social links, G League affiliate.",
+      "entity_mapping": ["teams"],
+      "grain": "one row per modern team_id",
+      "primary_key_candidates": ["team_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "team_id",
+          "references": "teams",
+          "notes": "Enriches team dimension."
+        }
+      ],
+      "columns": [
+        {
+          "name": "team_id",
+          "type_inferred": "int",
+          "notes": "Team id; primary key."
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": "Team code."
+        },
+        {
+          "name": "nickname",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "yearfounded",
+          "type_inferred": "float",
+          "notes": "Year founded; float in source."
+        },
+        {
+          "name": "city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "arena",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "arenacapacity",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "owner",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "generalmanager",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "headcoach",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "dleagueaffiliation",
+          "type_inferred": "string",
+          "notes": "G League affiliate."
+        },
+        {
+          "name": "facebook",
+          "type_inferred": "string",
+          "notes": "URL."
+        },
+        {
+          "name": "instagram",
+          "type_inferred": "string",
+          "notes": "URL."
+        },
+        {
+          "name": "twitter",
+          "type_inferred": "string",
+          "notes": "URL."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/team_info_common.csv",
+      "description": "Template for per-season team summary info (currently only header).",
+      "entity_mapping": ["teams", "seasons", "other"],
+      "grain": "intended: one row per team-season; currently empty.",
+      "primary_key_candidates": ["team_id", "season_year"],
+      "foreign_key_candidates": [
+        {
+          "column": "team_id",
+          "references": "teams",
+          "notes": "Would join to team dimension."
+        }
+      ],
+      "columns": [
+        {
+          "name": "team_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "season_year",
+          "type_inferred": "int",
+          "notes": "Season end year."
+        },
+        {
+          "name": "team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_conference",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_division",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_code",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_slug",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "w",
+          "type_inferred": "int",
+          "notes": "Wins."
+        },
+        {
+          "name": "l",
+          "type_inferred": "int",
+          "notes": "Losses."
+        },
+        {
+          "name": "pct",
+          "type_inferred": "float",
+          "notes": "Win percentage."
+        },
+        {
+          "name": "conf_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "div_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "min_year",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "max_year",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "league_id",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "season_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts_pg",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "reb_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "reb_pg",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "ast_pg",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_pts_rank",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_pts_pg",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/teamabbrev.csv",
+      "description": "Mapping of team names to abbreviations by season and playoff flag.",
+      "entity_mapping": ["mapping", "teams", "seasons"],
+      "grain": "one row per (season, team)",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": "Team code; joins to team dimension."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season end year."
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": "League."
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": "Team full name."
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": "Whether row corresponds to playoffs context."
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": "Short team code."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/game.csv",
+      "description": "Team-level box score results with home/away splits for each game.",
+      "entity_mapping": ["games", "boxscore_team"],
+      "grain": "one row per game_id (includes both home and away team stats)",
+      "primary_key_candidates": ["game_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Primary game identifier; shared with pbp, line_score, other_stats, etc."
+        },
+        {
+          "column": "team_id_home",
+          "references": "teams",
+          "notes": "Home team id."
+        },
+        {
+          "column": "team_id_away",
+          "references": "teams",
+          "notes": "Away team id."
+        },
+        {
+          "column": "season_id",
+          "references": "seasons",
+          "notes": "Season identifier encoded with year."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season_id",
+          "type_inferred": "int",
+          "notes": "Season code (e.g., 21946)."
+        },
+        {
+          "name": "team_id_home",
+          "type_inferred": "int",
+          "notes": "Home team id."
+        },
+        {
+          "name": "team_abbreviation_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_name_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": "Global game identifier; primary key."
+        },
+        {
+          "name": "game_date",
+          "type_inferred": "datetime",
+          "notes": "Tipoff date/time."
+        },
+        {
+          "name": "matchup_home",
+          "type_inferred": "string",
+          "notes": "Matchup descriptor (e.g., HUS vs. NYK)."
+        },
+        {
+          "name": "wl_home",
+          "type_inferred": "string",
+          "notes": "Home result W/L."
+        },
+        {
+          "name": "min",
+          "type_inferred": "float",
+          "notes": "Game minutes (often 48 or 0 placeholder)."
+        },
+        {
+          "name": "fgm_home",
+          "type_inferred": "float",
+          "notes": "Home FGM."
+        },
+        {
+          "name": "fga_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_pct_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3m_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3a_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3_pct_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ftm_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_pct_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "oreb_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "dreb_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "reb_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_home",
+          "type_inferred": "float",
+          "notes": "Home points."
+        },
+        {
+          "name": "plus_minus_home",
+          "type_inferred": "int",
+          "notes": "Margin from home perspective."
+        },
+        {
+          "name": "video_available_home",
+          "type_inferred": "int",
+          "notes": "0/1; media flag."
+        },
+        {
+          "name": "team_id_away",
+          "type_inferred": "int",
+          "notes": "Away team id."
+        },
+        {
+          "name": "team_abbreviation_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_name_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "matchup_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "wl_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "fgm_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fga_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_pct_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3m_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3a_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg3_pct_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ftm_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_pct_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "oreb_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "dreb_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "reb_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_away",
+          "type_inferred": "float",
+          "notes": "Away points."
+        },
+        {
+          "name": "plus_minus_away",
+          "type_inferred": "int",
+          "notes": "Margin from away perspective."
+        },
+        {
+          "name": "video_available_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "season_type",
+          "type_inferred": "string",
+          "notes": "Season type (Regular Season, etc.)."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/game_summary.csv",
+      "description": "Per-game metadata including status, schedule code, and home/visitor teams.",
+      "entity_mapping": ["games"],
+      "grain": "one row per game_id",
+      "primary_key_candidates": ["game_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Joins to game-level tables (game, line_score, pbp, other_stats)."
+        },
+        {
+          "column": "home_team_id",
+          "references": "teams",
+          "notes": ""
+        },
+        {
+          "column": "visitor_team_id",
+          "references": "teams",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "game_date_est",
+          "type_inferred": "datetime",
+          "notes": "Game date Eastern."
+        },
+        {
+          "name": "game_sequence",
+          "type_inferred": "int",
+          "notes": "Sequence that day (nullable)."
+        },
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": "Game identifier."
+        },
+        {
+          "name": "game_status_id",
+          "type_inferred": "int",
+          "notes": "Status code."
+        },
+        {
+          "name": "game_status_text",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "gamecode",
+          "type_inferred": "string",
+          "notes": "Schedule code."
+        },
+        {
+          "name": "home_team_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "visitor_team_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season year."
+        },
+        {
+          "name": "live_period",
+          "type_inferred": "int",
+          "notes": "Live period at capture time."
+        },
+        {
+          "name": "live_pc_time",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "natl_tv_broadcaster_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "live_period_time_bcast",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "wh_status",
+          "type_inferred": "int",
+          "notes": "Likely whether game is in play-by-play/wh context; ambiguous."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/line_score.csv",
+      "description": "Line score by game and team, including points by period and totals.",
+      "entity_mapping": ["boxscore_team", "games"],
+      "grain": "one row per game_id per team (two rows per game)",
+      "primary_key_candidates": ["game_id", "team_id_home"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Links to game-level data."
+        },
+        {
+          "column": "team_id_home",
+          "references": "teams",
+          "notes": "Actually team_id for the row (home in naming, but semantically per-team)."
+        },
+        {
+          "column": "team_id_away",
+          "references": "teams",
+          "notes": "Opponent team; supports matchup."
+        }
+      ],
+      "columns": [
+        {
+          "name": "game_date_est",
+          "type_inferred": "datetime",
+          "notes": ""
+        },
+        {
+          "name": "game_sequence",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": "Game id."
+        },
+        {
+          "name": "team_id_home",
+          "type_inferred": "int",
+          "notes": "Team id for the row; naming inconsistent with content for older rows; treat as team_id."
+        },
+        {
+          "name": "team_abbreviation_home",
+          "type_inferred": "string",
+          "notes": "Team abbreviation."
+        },
+        {
+          "name": "team_city_name_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_nickname_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_wins_losses_home",
+          "type_inferred": "string",
+          "notes": "Record entering game."
+        },
+        {
+          "name": "pts_qtr1_home",
+          "type_inferred": "float",
+          "notes": "Points by quarter and OT; many columns."
+        },
+        {
+          "name": "pts_home",
+          "type_inferred": "float",
+          "notes": "Total points."
+        },
+        {
+          "name": "team_id_away",
+          "type_inferred": "int",
+          "notes": "Opponent team."
+        },
+        {
+          "name": "team_abbreviation_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_city_name_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_nickname_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_wins_losses_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pts_qtr1_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_away",
+          "type_inferred": "float",
+          "notes": "Opponent total points."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/play_by_play.csv",
+      "description": "Full play-by-play event log for games.",
+      "entity_mapping": ["pbp_events"],
+      "grain": "one row per game_id + eventnum",
+      "primary_key_candidates": ["game_id", "eventnum"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Primary linkage to game."
+        },
+        {
+          "column": "player1_id",
+          "references": "players",
+          "notes": "Primary player involved."
+        },
+        {
+          "column": "player2_id",
+          "references": "players",
+          "notes": "Secondary player."
+        },
+        {
+          "column": "player3_id",
+          "references": "players",
+          "notes": "Tertiary player."
+        },
+        {
+          "column": "player1_team_id",
+          "references": "teams",
+          "notes": "Team for player1."
+        },
+        {
+          "column": "player2_team_id",
+          "references": "teams",
+          "notes": ""
+        },
+        {
+          "column": "player3_team_id",
+          "references": "teams",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": "Game identifier."
+        },
+        {
+          "name": "eventnum",
+          "type_inferred": "int",
+          "notes": "Sequential event id."
+        },
+        {
+          "name": "eventmsgtype",
+          "type_inferred": "int",
+          "notes": "Event type code."
+        },
+        {
+          "name": "eventmsgactiontype",
+          "type_inferred": "int",
+          "notes": "Subtype code."
+        },
+        {
+          "name": "period",
+          "type_inferred": "int",
+          "notes": "Quarter/OT."
+        },
+        {
+          "name": "wctimestring",
+          "type_inferred": "string",
+          "notes": "Wall-clock time."
+        },
+        {
+          "name": "pctimestring",
+          "type_inferred": "string",
+          "notes": "Game clock time."
+        },
+        {
+          "name": "homedescription",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "neutraldescription",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "visitordescription",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "score",
+          "type_inferred": "string",
+          "notes": "Score after event (e.g., '0 - 2')."
+        },
+        {
+          "name": "scoremargin",
+          "type_inferred": "string",
+          "notes": "Margin description; may be numeric or 'TIE'."
+        },
+        {
+          "name": "person1type",
+          "type_inferred": "float",
+          "notes": "Role code for player1."
+        },
+        {
+          "name": "player1_id",
+          "type_inferred": "float",
+          "notes": "Player id."
+        },
+        {
+          "name": "player1_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player1_team_id",
+          "type_inferred": "float",
+          "notes": "Team id for player1."
+        },
+        {
+          "name": "player1_team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player1_team_nickname",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player1_team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "person2type",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player2_id",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player2_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player2_team_id",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player2_team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player2_team_nickname",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player2_team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "person3type",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player3_id",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player3_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player3_team_id",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "player3_team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player3_team_nickname",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player3_team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "video_available_flag",
+          "type_inferred": "int",
+          "notes": "Video availability."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/other_stats.csv",
+      "description": "Team-level advanced/other scoring and turnover stats by game.",
+      "entity_mapping": ["boxscore_team", "games"],
+      "grain": "one row per game-team (encoded in home/away columns, but logically two rows per game)",
+      "primary_key_candidates": ["game_id", "team_id_home"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Joins to game."
+        },
+        {
+          "column": "team_id_home",
+          "references": "teams",
+          "notes": "Team id for 'home' row."
+        },
+        {
+          "column": "team_id_away",
+          "references": "teams",
+          "notes": "Opponent team id."
+        }
+      ],
+      "columns": [
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "league_id",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_id_home",
+          "type_inferred": "int",
+          "notes": "Team id."
+        },
+        {
+          "name": "team_abbreviation_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_city_home",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pts_paint_home",
+          "type_inferred": "int",
+          "notes": "Points in paint."
+        },
+        {
+          "name": "pts_2nd_chance_home",
+          "type_inferred": "int",
+          "notes": "Second-chance points."
+        },
+        {
+          "name": "pts_fb_home",
+          "type_inferred": "int",
+          "notes": "Fast-break points."
+        },
+        {
+          "name": "largest_lead_home",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lead_changes",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "times_tied",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "team_turnovers_home",
+          "type_inferred": "float",
+          "notes": "Team-only turnovers."
+        },
+        {
+          "name": "total_turnovers_home",
+          "type_inferred": "float",
+          "notes": "Total turnovers."
+        },
+        {
+          "name": "team_rebounds_home",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_off_to_home",
+          "type_inferred": "float",
+          "notes": "Points off turnovers."
+        },
+        {
+          "name": "team_id_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "team_abbreviation_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_city_away",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pts_paint_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts_2nd_chance_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts_fb_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "largest_lead_away",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "team_turnovers_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "total_turnovers_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "team_rebounds_away",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_off_to_away",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/inactive_players.csv",
+      "description": "Inactive player listings per game (DNP/roster metadata).",
+      "entity_mapping": ["games", "players", "other"],
+      "grain": "one row per game_id + player_id who is inactive",
+      "primary_key_candidates": ["game_id", "player_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "game_id",
+          "references": "games",
+          "notes": "Connects to game entity."
+        },
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": "Inactive player."
+        },
+        {
+          "column": "team_id",
+          "references": "teams",
+          "notes": "Team of inactive player."
+        }
+      ],
+      "columns": [
+        {
+          "name": "game_id",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "first_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "last_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "jersey_num",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "team_city",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_name",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team_abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playerpergame.csv",
+      "description": "Per-player per-season per-team per-game averages (basic box score).",
+      "entity_mapping": ["players", "advanced_metrics", "mapping"],
+      "grain": "one row per player-season-team (with TOT rows) for per-game stats",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": "Player foreign key."
+        },
+        {
+          "column": "tm",
+          "references": "teams",
+          "notes": "Team abbreviation."
+        }
+      ],
+      "columns": [
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Unique row id."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": "Birth year or NA."
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": "Position."
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": "League."
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team abbreviation or TOT."
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": "Games played."
+        },
+        {
+          "name": "gs",
+          "type_inferred": "int",
+          "notes": "Games started."
+        },
+        {
+          "name": "mp_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fga_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_per_game",
+          "type_inferred": "float",
+          "notes": "3PM."
+        },
+        {
+          "name": "x3pa_per_game",
+          "type_inferred": "float",
+          "notes": "3PA."
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2pa_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "e_fg_percent",
+          "type_inferred": "float",
+          "notes": "Effective FG%."
+        },
+        {
+          "name": "ft_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "drb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "trb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playertotals.csv",
+      "description": "Per-player per-season totals (counting stats).",
+      "entity_mapping": ["players", "advanced_metrics"],
+      "grain": "one row per player-season-team (with TOT rows) for totals",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        },
+        {
+          "column": "tm",
+          "references": "teams",
+          "notes": "Team abbreviation."
+        }
+      ],
+      "columns": [
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Unique row id."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team or TOT."
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "gs",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fga",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p",
+          "type_inferred": "int",
+          "notes": "3PM."
+        },
+        {
+          "name": "x3pa",
+          "type_inferred": "int",
+          "notes": "3PA."
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x2pa",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "e_fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fta",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "drb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "trb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "ast",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "stl",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "blk",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "tov",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pf",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts",
+          "type_inferred": "int",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/per36minutes.csv",
+      "description": "Per-player per-season per-team rate stats per 36 minutes.",
+      "entity_mapping": ["players", "advanced_metrics"],
+      "grain": "one row per player-season-team (with TOT rows) for per-36 metrics",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Unique row id."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "gs",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fga_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3pa_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2pa_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "drb_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "trb_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_per_36_min",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/per100poss.csv",
+      "description": "Per-player per-season per-team rate stats per 100 possessions, including on/off metrics.",
+      "entity_mapping": ["players", "advanced_metrics"],
+      "grain": "one row per player-season-team (with TOT rows) for per-100 metrics",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Row id."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "gs",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fga_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3pa_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2pa_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "drb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "trb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "o_rtg",
+          "type_inferred": "int",
+          "notes": "Offensive rating."
+        },
+        {
+          "name": "d_rtg",
+          "type_inferred": "int",
+          "notes": "Defensive rating."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/advanced.csv",
+      "description": "Per-player advanced metrics per season/team (PER, WS, BPM, etc.).",
+      "entity_mapping": ["players", "advanced_metrics"],
+      "grain": "one row per player-season-team (with TOT rows) for advanced metrics",
+      "primary_key_candidates": ["seas_id"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Row id."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "pos",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "experience",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "per",
+          "type_inferred": "float",
+          "notes": "Player efficiency rating."
+        },
+        {
+          "name": "ts_percent",
+          "type_inferred": "float",
+          "notes": "True shooting %."
+        },
+        {
+          "name": "x3p_ar",
+          "type_inferred": "float",
+          "notes": "3PA rate."
+        },
+        {
+          "name": "f_tr",
+          "type_inferred": "float",
+          "notes": "FT rate."
+        },
+        {
+          "name": "orb_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "drb_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "trb_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "usg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ows",
+          "type_inferred": "float",
+          "notes": "Offensive Win Shares."
+        },
+        {
+          "name": "dws",
+          "type_inferred": "float",
+          "notes": "Defensive Win Shares."
+        },
+        {
+          "name": "ws",
+          "type_inferred": "float",
+          "notes": "Win Shares."
+        },
+        {
+          "name": "ws_48",
+          "type_inferred": "float",
+          "notes": "Win Shares per 48."
+        },
+        {
+          "name": "obpm",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "dbpm",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "bpm",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "vorp",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/teamstatspergame.csv",
+      "description": "Per-team per-season per-game averages (including league averages).",
+      "entity_mapping": ["teams", "advanced_metrics"],
+      "grain": "one row per team-season (plus League Average rows)",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": "Team code; 'League Average' rows are special-case."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season."
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": "Team name or 'League Average'."
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": "Team abbreviation or NA for league row."
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": "TRUE/FALSE indicates whether stats are for playoffs."
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": "Games."
+        },
+        {
+          "name": "mp_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fga_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3pa_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2pa_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "fta_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "drb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "trb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ast_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "stl_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "blk_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "tov_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pf_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "pts_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/teamtotals.csv",
+      "description": "Per-team per-season totals (counting stats).",
+      "entity_mapping": ["teams", "advanced_metrics"],
+      "grain": "one row per team-season (plus League Average)",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fga",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x3p",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x3pa",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x2p",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x2pa",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "ft",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "fta",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "orb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "drb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "trb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "ast",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "stl",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "blk",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "tov",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pf",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts",
+          "type_inferred": "int",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/opponenttotals.csv",
+      "description": "Opponent totals allowed per team-season.",
+      "entity_mapping": ["teams", "advanced_metrics"],
+      "grain": "one row per team-season (plus league averages), representing opponent stats",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": "Team whose opponents these numbers describe."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_fga",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3pa",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2pa",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_fta",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_orb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_drb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_trb",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_ast",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_stl",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_blk",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_tov",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_pf",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_pts",
+          "type_inferred": "int",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/opponentstatspergame.csv",
+      "description": "Opponent per-game averages per team-season.",
+      "entity_mapping": ["teams", "advanced_metrics"],
+      "grain": "one row per team-season (plus league averages), opponent per-game stats",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fga_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3pa_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2pa_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fta_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_orb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_drb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_trb_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ast_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_stl_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_blk_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_tov_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_pf_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_pts_per_game",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/opponentstatsper100poss.csv",
+      "description": "Opponent per-100-possession defensive stats per team-season.",
+      "entity_mapping": ["teams", "advanced_metrics"],
+      "grain": "one row per team-season (plus league averages), opponent per-100 metrics",
+      "primary_key_candidates": ["season", "team", "playoffs"],
+      "foreign_key_candidates": [
+        {
+          "column": "abbreviation",
+          "references": "teams",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "abbreviation",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "playoffs",
+          "type_inferred": "bool",
+          "notes": ""
+        },
+        {
+          "name": "g",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "mp",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fga_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fg_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3pa_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x3p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2pa_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_x2p_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_fta_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ft_percent",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_orb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_drb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_trb_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_ast_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_stl_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_blk_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_tov_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_pf_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "opp_pts_per_100_poss",
+          "type_inferred": "float",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/all_starselections.csv",
+      "description": "All-Star selection records by player-season.",
+      "entity_mapping": ["awards", "players", "seasons"],
+      "grain": "one row per player-season All-Star selection",
+      "primary_key_candidates": ["player", "season", "team"],
+      "foreign_key_candidates": [
+        {
+          "column": "player",
+          "references": "players",
+          "notes": "Match on name via mapping to player ids; requires care."
+        },
+        {
+          "column": "season",
+          "references": "seasons",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": "Player name."
+        },
+        {
+          "name": "team",
+          "type_inferred": "string",
+          "notes": "All-Star team or conference label."
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": "League."
+        },
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season."
+        },
+        {
+          "name": "replaced",
+          "type_inferred": "bool",
+          "notes": "Whether player was an injury replacement."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/playerawardshares.csv",
+      "description": "Voting shares for major awards by player-season.",
+      "entity_mapping": ["awards", "players", "seasons"],
+      "grain": "one row per player-season-award",
+      "primary_key_candidates": ["season", "award", "player"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": "Links to player dimension."
+        },
+        {
+          "column": "seas_id",
+          "references": "other",
+          "notes": "Appears to link to season-specific rows in other tables."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season."
+        },
+        {
+          "name": "award",
+          "type_inferred": "string",
+          "notes": "Award type (MVP, DPOY, etc.)."
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": "Player name."
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team abbreviation."
+        },
+        {
+          "name": "first",
+          "type_inferred": "int",
+          "notes": "First-place votes."
+        },
+        {
+          "name": "pts_won",
+          "type_inferred": "int",
+          "notes": "Award points received."
+        },
+        {
+          "name": "pts_max",
+          "type_inferred": "int",
+          "notes": "Maximum possible points."
+        },
+        {
+          "name": "share",
+          "type_inferred": "float",
+          "notes": "Share of possible points."
+        },
+        {
+          "name": "winner",
+          "type_inferred": "bool",
+          "notes": "TRUE if award winner."
+        },
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Season row id; likely joins to player-season stats."
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": "Player id."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/endofseasonteams.csv",
+      "description": "All-NBA, All-Defense, All-Rookie team selections by season.",
+      "entity_mapping": ["awards", "players", "seasons"],
+      "grain": "one row per player-season-honor (team type + ordinal)",
+      "primary_key_candidates": ["season", "lg", "type", "number_tm", "player"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        },
+        {
+          "column": "seas_id",
+          "references": "other",
+          "notes": "Encodes player-season; likely links to season stats."
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": "Season."
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "type",
+          "type_inferred": "string",
+          "notes": "All-NBA/All-Defense/All-Rookie."
+        },
+        {
+          "name": "number_tm",
+          "type_inferred": "string",
+          "notes": "Team (1st/2nd/3rd)."
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "position",
+          "type_inferred": "string",
+          "notes": "For All-NBA etc."
+        },
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Season identifier."
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": "Player id."
+        },
+        {
+          "name": "birth_year",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team abbreviation."
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": "Player age."
+        }
+      ]
+    },
+    {
+      "filename": "csv_files/endofseasonteams_voting.csv",
+      "description": "Voting results for end-of-season All-NBA/All-Defense/All-Rookie teams.",
+      "entity_mapping": ["awards", "players", "seasons"],
+      "grain": "one row per player-season-team-type voting result line",
+      "primary_key_candidates": ["season", "lg", "type", "player", "tm"],
+      "foreign_key_candidates": [
+        {
+          "column": "player_id",
+          "references": "players",
+          "notes": ""
+        }
+      ],
+      "columns": [
+        {
+          "name": "season",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "lg",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "type",
+          "type_inferred": "string",
+          "notes": "All-NBA/All-Defense/All-Rookie."
+        },
+        {
+          "name": "number_tm",
+          "type_inferred": "string",
+          "notes": "Team (1T, 2T, ORV, etc.)."
+        },
+        {
+          "name": "position",
+          "type_inferred": "string",
+          "notes": "Position slot (if applicable)."
+        },
+        {
+          "name": "player",
+          "type_inferred": "string",
+          "notes": ""
+        },
+        {
+          "name": "age",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "tm",
+          "type_inferred": "string",
+          "notes": "Team abbreviation."
+        },
+        {
+          "name": "pts_won",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "pts_max",
+          "type_inferred": "int",
+          "notes": ""
+        },
+        {
+          "name": "share",
+          "type_inferred": "float",
+          "notes": ""
+        },
+        {
+          "name": "x1st_tm",
+          "type_inferred": "int",
+          "notes": "1st-team votes."
+        },
+        {
+          "name": "x2nd_tm",
+          "type_inferred": "int",
+          "notes": "2nd-team votes."
+        },
+        {
+          "name": "x3rd_tm",
+          "type_inferred": "int",
+          "notes": "3rd-team votes."
+        },
+        {
+          "name": "seas_id",
+          "type_inferred": "int",
+          "notes": "Player-season id."
+        },
+        {
+          "name": "player_id",
+          "type_inferred": "int",
+          "notes": "Player id."
+        }
+      ]
+    }
+  ],
+  "additional_files_note": "Filenames present in directory listing but whose contents were not fully shown above (e.g., draft_combine_stats.csv, draft_history.csv beyond sample, officials.csv, teamstatsper100poss.csv, opponentstatsper100poss for all rows, playerplaybyplay.csv, playershooting.csv, game_info.csv, teamsummaries.csv, team_details for all teams) follow analogous patterns:",
+  "additional_files_patterns": [
+    "draft_*: entity_mapping ['draft', 'players'], grain one row per drafted player/measurement, primary keys based on person_id + season or similar, FKs to players and teams.",
+    "playerplaybyplay.csv: entity_mapping ['pbp_events', 'players'], grain per player-season team on/off splits.",
+    "playershooting.csv: entity_mapping ['players', 'advanced_metrics'], grain per player-season shooting splits.",
+    "teamstatsper100poss.csv: entity_mapping ['teams', 'advanced_metrics'], grain per team-season per-100 metrics.",
+    "teamsummaries.csv / game_info.csv / officials.csv: mapping/metadata entities for games/teams/officials."
+  ],
+  "notes": [
+    "This inventory is based strictly on the CSV contents provided or implied; some files listed (e.g., draft_combine_stats.csv, game_info.csv, officials.csv, playershooting.csv, playerplaybyplay.csv, teamstatsper100poss.csv, teamsummaries.csv, team_info_common.csv body) were not fully visible in the excerpts. Their mappings are inferred from standard public schemas and should be verified in Phase 1 by inspecting full headers.",
+    "Player identifiers: player.csv.id, common_player_info.csv.person_id, and playerawardshares/playerseasoninfo/playercareerinfo player_id fields appear to represent the same logical player key (NBA.com person_id). A unified players dimension should treat this as the canonical numeric key, with playerdirectory.slug and other text fields as secondary natural keys.",
+    "Team identifiers: team.csv.id is the canonical team key. Historical teams in game/line_score/other_stats use legacy ids (e.g., 1610610035 for Huskies); these should be modeled either in the same teams dimension with historical rows or a separate historical_teams dimension. teamabbrev.csv and team_history.csv provide bridging between names/abbreviations and ids.",
+    "Game identifiers: game_id is consistently used across game.csv, game_summary.csv, line_score.csv, play_by_play.csv, other_stats.csv, inactive_players.csv. The canonical games entity should key on game_id, with date, season, and home/away teams drawn from game_summary/game.csv.",
+    "Box score grain: game.csv stores both home and away stats in a single row (wide format). For a normalized schema, it should be refactored into a team-game fact table (one row per game_id+team_id), aligning with line_score and other_stats, which are effectively at that grain despite wide naming.",
+    "Per-player season stats (playerpergame, playertotals, per36minutes, per100poss, advanced) all appear to share seas_id as a surrogate key tying a player-season-team row across tables. This is a strong candidate for a canonical player_season_team fact grain; Phase 1 should confirm uniqueness and consistent usage of seas_id.",
+    "Award tables (playerawardshares, endofseasonteams, endofseasonteams_voting, all_starselections) mix text names and numeric ids. For robustness and to avoid name collisions, Phase 1 should standardize on numeric player_id and, where applicable, seas_id when joining to players and season stats.",
+    "Opponent stats tables (opponenttotals, opponentstatspergame, opponentstatsper100poss) represent opponent performance against each team; they logically belong in the same team-season metrics mart as teamtotals/teamstatspergame/teamstatsper100poss and share keys.",
+    "Several float-typed year fields (e.g., year_founded, from_year/to_year) are semantically integers; Phase 1 should normalize these to integer types in PostgreSQL.",
+    "Historical abbreviations and legacy team_ids (e.g., PIT, HUS, CHS, etc.) require a clear mapping policy to avoid collisions with modern franchises; architects should decide whether to treat them as separate team entities or as historical states of a franchise."
+  ]
+}
