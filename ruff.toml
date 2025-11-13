@@ -1,0 +1,25 @@
+line-length = 88
+target-version = "py311"
+
+src = [
+  "api",
+  "etl",
+  "scripts",
+  "tests",
+]
+
+exclude = [
+  ".venv",
+  "node_modules",
+  "db",
+  "app",
+  "components",
+  ".next",
+  "dist",
+]
+
+select = [
+  "E",
+  "F",
+  "I",
+]
