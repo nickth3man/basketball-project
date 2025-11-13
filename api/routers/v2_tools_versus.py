@@ -5,17 +5,16 @@ from typing import Any, Dict
 from fastapi import APIRouter, HTTPException, status
 
 from api.models_v2 import (
-    MAX_PAGE_SIZE,
     MAX_METRICS,
+    MAX_PAGE_SIZE,
     MAX_SUBJECT_IDS,
-    PaginationMetaV2,
     PaginatedResponseV2,
+    PaginationMetaV2,
     QueryFiltersEchoV2,
-    VersusQueryV2,
     VersusQueryResponseV2,
+    VersusQueryV2,
     VersusResultRowV2,
 )
-
 
 router = APIRouter(tags=["tools-v2-versus"])
 

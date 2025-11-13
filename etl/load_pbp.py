@@ -29,9 +29,7 @@ from .id_resolution import (
     build_game_lookup,
     build_player_lookup,
     build_team_lookup,
-    ensure_game_exists,
     resolve_player_id_from_name,
-    resolve_team_id_from_abbrev,
 )
 from .logging_utils import get_logger, log_structured
 from .paths import PBP_CSV, resolve_csv_path
@@ -46,12 +44,16 @@ def _read_csv_if_exists(path: str) -> Optional[pl.DataFrame]:
     return pl.read_csv(path)
 
 
-def _load_dimension_lookups(conn: Connection) -> tuple[GameLookup, PlayerLookup, TeamLookup]:
+def _load_dimension_lookups(
+    conn: Connection,
+) -> tuple[GameLookup, PlayerLookup, TeamLookup]:
     with conn.cursor() as cur:
         cur.execute("SELECT game_id FROM games")
         games_df = pl.from_records(cur.fetchall(), schema=["game_id"])
 
-        cur.execute("SELECT player_id, slug, full_name, first_name, last_name FROM players")
+        cur.execute(
+            "SELECT player_id, slug, full_name, first_name, last_name FROM players"
+        )
         players_df = pl.from_records(
             cur.fetchall(),
             schema=["player_id", "slug", "full_name", "first_name", "last_name"],
@@ -119,9 +121,7 @@ def load_pbp_events(config: Config, conn: Connection) -> None:
         logger.warning("pbp_events load skipped: missing game_id/eventnum columns")
         return
 
-    df = df.filter(
-        pl.col("game_id").is_in(list(game_lu.by_game_id.keys()))
-    )
+    df = df.filter(pl.col("game_id").is_in(list(game_lu.by_game_id.keys())))
 
     if df.is_empty():
         logger.info("No PBP rows after filtering to known games; skipping")
@@ -159,7 +159,9 @@ def load_pbp_events(config: Config, conn: Connection) -> None:
 
     df = df.with_columns(
         pl.struct(["team_abbrev"])
-        .map_elements(lambda r: _resolve_team_from_row("team_abbrev", r), return_dtype=pl.Int64)
+        .map_elements(
+            lambda r: _resolve_team_from_row("team_abbrev", r), return_dtype=pl.Int64
+        )
         .alias("team_id"),
         pl.struct(["opp_team_abbrev"])
         .map_elements(
@@ -225,6 +227,7 @@ def load_pbp_events(config: Config, conn: Connection) -> None:
 
     # Derive running scores if SCORE column present
     if "score" in df.columns:
+
         def _split_score(score: str) -> tuple[Optional[int], Optional[int]]:
             if not score or "-" not in score:
                 return None, None
@@ -274,9 +277,8 @@ def load_pbp_events(config: Config, conn: Connection) -> None:
             df = df.with_columns(pl.lit(None).alias(col))
 
     # Enforce uniqueness on (game_id, eventnum) by grouping; keep first occurrence.
-    df = (
-        df.sort(["game_id", "eventnum"])
-        .unique(subset=["game_id", "eventnum"], keep="first")
+    df = df.sort(["game_id", "eventnum"]).unique(
+        subset=["game_id", "eventnum"], keep="first"
     )
 
     truncate_table(conn, "pbp_events")

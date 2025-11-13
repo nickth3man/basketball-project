@@ -414,6 +414,7 @@ async def update_saved_query_v2(
 @router.delete(
     "/saved-queries/{query_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None,
 )
 async def delete_saved_query_v2(query_id: str) -> None:
     """

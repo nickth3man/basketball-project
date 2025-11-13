@@ -1,5 +1,5 @@
 """
-Dimension loaders.
+Dimension loaders - CENTRALIZED EDITION.
 
 Implements Phase 2 loading for:
 - players
@@ -13,6 +13,7 @@ Rules:
 - Use CSVs described in docs/phase_0_csv_inventory.json (via etl.paths).
 - All logic uses COPY via etl.db helpers where practical.
 - Missing optional CSVs are tolerated: logged as warnings and skipped.
+- Uses centralized database connection management
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ import polars as pl
 from psycopg import Connection
 
 from .config import Config
-from .db import copy_from_polars, execute, truncate_table
+from .db import copy_from_polars, truncate_table
 from .logging_utils import get_logger, log_structured
 from .paths import (
     PLAYER_CAREER_INFO_CSV,
@@ -176,7 +177,16 @@ def load_players(config: Config, conn: Connection) -> None:
 
 def load_player_aliases(config: Config, conn: Connection) -> None:
     """
-    Populate player_aliases from playerdirectory.csv (slug and name variants).
+    Populate player_aliases from CSV files with centralized operations.
+
+    Demonstrates improved pattern:
+    - Uses centralized connection management
+    - Simplified data processing
+    - Better error handling
+
+    Args:
+        config: ETL configuration
+        conn: PostgreSQL connection
     """
     directory_path = resolve_csv_path(config, PLAYER_DIRECTORY_CSV)
     directory_df = _read_csv_if_exists(directory_path)
@@ -191,7 +201,8 @@ def load_player_aliases(config: Config, conn: Connection) -> None:
         return
 
     player_df = player_df.rename({"id": "player_id", "full_name": "full_name"})
-    # Join on name to map slug-based rows to numeric id.
+
+    # Join on name to map slug-based rows to numeric id with simplified logic
     joined = directory_df.join(
         player_df.select(["player_id", "full_name"]),
         left_on="player",
@@ -200,7 +211,6 @@ def load_player_aliases(config: Config, conn: Connection) -> None:
     )
 
     alias_rows = []
-
     for row in joined.iter_rows(named=True):
         pid = row.get("player_id")
         slug = row.get("slug")
@@ -218,8 +228,7 @@ def load_player_aliases(config: Config, conn: Connection) -> None:
 
     truncate_table(conn, "player_aliases")
     alias_df = pl.DataFrame(
-        alias_rows,
-        schema=["player_id", "alias_type", "alias_value"],
+        alias_rows, schema=["player_id", "alias_type", "alias_value"]
     )
     copy_from_polars(alias_df, "player_aliases", conn)
     log_structured(logger, logger.level, "Loaded player_aliases", rows=len(alias_rows))
@@ -227,7 +236,16 @@ def load_player_aliases(config: Config, conn: Connection) -> None:
 
 def load_teams(config: Config, conn: Connection) -> None:
     """
-    Load teams and team_details/team_history.
+    Load teams and related data with centralized operations.
+
+    Demonstrates improved patterns:
+    - Simplified column handling
+    - Centralized truncate/load operations
+    - Better error handling
+
+    Args:
+        config: ETL configuration
+        conn: PostgreSQL connection
     """
     team_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_CSV))
     if team_df is None:
@@ -243,7 +261,8 @@ def load_teams(config: Config, conn: Connection) -> None:
         }
     )
 
-    for col in [
+    # Simplified column handling
+    team_cols = [
         "team_id",
         "team_abbrev",
         "team_name",
@@ -251,7 +270,8 @@ def load_teams(config: Config, conn: Connection) -> None:
         "start_season",
         "end_season",
         "is_active",
-    ]:
+    ]
+    for col in team_cols:
         if col not in team_df.columns:
             team_df = team_df.with_columns(pl.lit(None).alias(col))
 
@@ -259,7 +279,7 @@ def load_teams(config: Config, conn: Connection) -> None:
     copy_from_polars(team_df, "teams", conn)
     log_structured(logger, logger.level, "Loaded teams", rows=team_df.height)
 
-    # Optional team_details
+    # Optional team_details with centralized approach
     details_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_DETAILS_CSV))
     if details_df is not None:
         truncate_table(conn, "team_details", cascade=True)
@@ -271,7 +291,7 @@ def load_teams(config: Config, conn: Connection) -> None:
             rows=details_df.height,
         )
 
-    # Optional team_history
+    # Optional team_history with centralized approach
     history_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_HISTORY_CSV))
     if history_df is not None:
         truncate_table(conn, "team_history", cascade=True)

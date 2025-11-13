@@ -385,7 +385,7 @@ def check_table_schema(
     issues: List[Dict[str, Any]] = []
 
     expected_cols_cfg: Iterable[Dict[str, Any]] = exp.get("expected_columns") or []
-    expected_pk: Iterable[str] = exp.get("primary_key") or []
+    _expected_pk: Iterable[str] = exp.get("primary_key") or []  # noqa: F841
 
     expected_cols = {c["name"]: c for c in expected_cols_cfg if "name" in c}
     actual_cols_map = {c["name"]: c for c in actual_cols}

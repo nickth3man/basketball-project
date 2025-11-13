@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query, status
+from metrics.registry import (
+    RegistryUnavailableError,
+    get_metric_def,
+    load_registry,
+)
 
 from api.models_v2 import (
     EntityTypeV2,
     PaginatedResponseV2,
     PaginationMetaV2,
     QueryFiltersEchoV2,
-)
-from metrics.registry import (
-    RegistryUnavailableError,
-    get_metric_def,
-    load_registry,
 )
 
 router = APIRouter(tags=["metrics-v2"])

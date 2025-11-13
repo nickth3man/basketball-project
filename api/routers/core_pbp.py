@@ -3,15 +3,15 @@ from __future__ import annotations
 from typing import Dict, List, Tuple
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import and_, func, select, table, column
+from sqlalchemy import and_, column, func, select, table
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.deps import get_db, get_pagination, parse_comma_ints
+from api.deps import get_db, get_pagination
 from api.models import (
     FiltersEcho,
-    PbpEventRow,
     PaginatedResponse,
     PaginationMeta,
+    PbpEventRow,
 )
 
 router = APIRouter(tags=["pbp"])
@@ -107,9 +107,7 @@ async def get_game_pbp(
     total = (await db.execute(count_stmt)).scalar_one()
 
     offset = (page - 1) * page_size
-    rows = (
-        await db.execute(query.limit(page_size).offset(offset))
-    ).mappings()
+    rows = (await db.execute(query.limit(page_size).offset(offset))).mappings()
 
     data: List[PbpEventRow] = [PbpEventRow(**dict(r)) for r in rows]
 

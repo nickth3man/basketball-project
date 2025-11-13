@@ -5,14 +5,13 @@ from typing import Any, Dict
 from fastapi import APIRouter, HTTPException, status
 
 from api.models_v2 import (
-    PaginationMetaV2,
     PaginatedResponseV2,
+    PaginationMetaV2,
     QueryFiltersEchoV2,
-    SpansQueryV2,
     SpansQueryResponseV2,
+    SpansQueryV2,
     SpansResultRowV2,
 )
-
 
 router = APIRouter(tags=["tools-v2-spans"])
 

@@ -58,7 +58,9 @@ def _read_csv_if_exists(path: str) -> Optional[pl.DataFrame]:
     return pl.read_csv(path)
 
 
-def _build_dimension_lookups(conn: Connection) -> tuple[PlayerLookup, TeamLookup, SeasonLookup]:
+def _build_dimension_lookups(
+    conn: Connection,
+) -> tuple[PlayerLookup, TeamLookup, SeasonLookup]:
     with conn.cursor() as cur:
         cur.execute(
             "SELECT player_id, slug, full_name, first_name, last_name FROM players"

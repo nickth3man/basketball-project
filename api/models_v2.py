@@ -4,7 +4,13 @@ from datetime import date
 from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+# Constants
+MAX_PAGE_SIZE = 200
+MAX_METRICS = 10
+MAX_SPLIT_DIMENSIONS = 5
+MAX_SUBJECT_IDS = 100
 
 
 # -------------------------
@@ -119,7 +125,8 @@ class AdvancedConditionV2(BaseModel):
     op: str  # Literal-style validation enforced below
     value: Any
 
-    @validator("op")
+    @field_validator("op")
+    @classmethod
     def validate_op(cls, v: str) -> str:
         allowed = {
             "eq",
@@ -141,15 +148,13 @@ class ConditionGroupV2(BaseModel):
     all: Optional[List[Union["AdvancedConditionV2", "ConditionGroupV2"]]] = None
     any: Optional[List[Union["AdvancedConditionV2", "ConditionGroupV2"]]] = None
 
-    @root_validator
-    def validate_all_or_any(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        all_val = values.get("all")
-        any_val = values.get("any")
-        if not all_val and not any_val:
+    @model_validator(mode="after")
+    def validate_all_or_any(self) -> "ConditionGroupV2":
+        if not self.all and not self.any:
             raise ValueError(
                 "ConditionGroupV2 requires at least one of 'all' or 'any'",
             )
-        return values
+        return self
 
 
 ConditionGroupV2.update_forward_refs()
@@ -178,15 +183,13 @@ class SortSpecV2(BaseModel):
     field: Optional[str] = None
     direction: SortDirectionV2
 
-    @root_validator
-    def validate_target(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        metric_id = values.get("metric_id")
-        field = values.get("field")
-        if not metric_id and not field:
+    @model_validator(mode="after")
+    def validate_target(self) -> "SortSpecV2":
+        if not self.metric_id and not self.field:
             raise ValueError(
                 "SortSpecV2 requires at least one of 'metric_id' or 'field'"
             )
-        return values
+        return self
 
 
 class PageSpecV2(BaseModel):

@@ -33,9 +33,6 @@ from psycopg import Connection
 from .config import Config
 from .db import copy_from_polars, truncate_table
 from .id_resolution import (
-    PlayerLookup,
-    SeasonLookup,
-    TeamLookup,
     build_player_lookup,
     build_season_lookup,
     build_team_lookup,
@@ -45,8 +42,8 @@ from .id_resolution import (
 from .logging_utils import get_logger, log_structured
 from .paths import (
     PLAYER_ADVANCED_CSV,
-    PLAYER_PER100_CSV,
     PLAYER_PER36_CSV,
+    PLAYER_PER100_CSV,
     PLAYER_PER_GAME_CSV,
     PLAYER_SEASON_INFO_CSV,
     PLAYER_TOTALS_CSV,
@@ -63,12 +60,16 @@ def _read_csv_if_exists(path: str) -> Optional[pl.DataFrame]:
     return pl.read_csv(path)
 
 
-def _load_dimension_dataframes(conn: Connection) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+def _load_dimension_dataframes(
+    conn: Connection,
+) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """
     Load minimal dimension snapshots from DB for id resolution.
     """
     with conn.cursor() as cur:
-        cur.execute("SELECT player_id, slug, full_name, first_name, last_name FROM players")
+        cur.execute(
+            "SELECT player_id, slug, full_name, first_name, last_name FROM players"
+        )
         players = pl.from_records(
             cur.fetchall(),
             schema=["player_id", "slug", "full_name", "first_name", "last_name"],
@@ -100,7 +101,7 @@ def load_player_season_hub(config: Config, conn: Connection) -> None:
         return
 
     players_df, teams_df, seasons_df = _load_dimension_dataframes(conn)
-    player_lu = build_player_lookup(players_df)
+    _player_lu = build_player_lookup(players_df)  # noqa: F841
     team_lu = build_team_lookup(teams_df)
     season_lu = build_season_lookup(seasons_df)
 
@@ -200,7 +201,9 @@ def _load_hub_seas_ids(conn: Connection) -> Set[int]:
     return {int(r[0]) for r in rows}
 
 
-def _filter_satellite(df: Optional[pl.DataFrame], hub_seas_ids: Set[int]) -> Optional[pl.DataFrame]:
+def _filter_satellite(
+    df: Optional[pl.DataFrame], hub_seas_ids: Set[int]
+) -> Optional[pl.DataFrame]:
     if df is None or df.is_empty():
         return None
     if "seas_id" not in df.columns:

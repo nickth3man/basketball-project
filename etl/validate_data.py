@@ -23,6 +23,7 @@ This module is intentionally conservative:
 from typing import Iterable, List
 
 from psycopg import Connection
+from psycopg.sql import SQL, Identifier
 
 from .config import get_config
 from .db import get_connection, release_connection
@@ -77,17 +78,30 @@ def count_orphans(
     """
     Count rows in child_table where child_column is not null
     and missing in parent_table.
+
+    [SECURITY] Uses SQL identifier quoting for safe dynamic table/column names.
+
+    Preconditions: All parameters are table/column names (validated via Identifier).
+    Postconditions: Returns count of orphaned rows.
+    Side effects: Read-only query.
     """
-    sql = f"""
+    # Use psycopg.sql.Identifier for safe identifier quoting
+    query = SQL("""
         SELECT COUNT(*)
         FROM {child_table} c
         LEFT JOIN {parent_table} p
           ON c.{child_column} = p.{parent_column}
         WHERE c.{child_column} IS NOT NULL
           AND p.{parent_column} IS NULL
-    """
+    """).format(
+        child_table=Identifier(child_table),
+        parent_table=Identifier(parent_table),
+        child_column=Identifier(child_column),
+        parent_column=Identifier(parent_column),
+    )
+
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(query)
         row = cur.fetchone()
         cnt = int(row[0]) if row and row[0] is not None else 0
 
@@ -114,9 +128,16 @@ def _table_must_exist(
 
 
 def _count_rows(conn: Connection, table_name: str) -> int:
-    sql = f"SELECT COUNT(*) FROM {table_name}"
+    """
+    Count rows in a table.
+
+    [SECURITY] Uses SQL identifier quoting for safe dynamic table names.
+    """
+    query = SQL("SELECT COUNT(*) FROM {table_name}").format(
+        table_name=Identifier(table_name)
+    )
     with conn.cursor() as cur:
-        cur.execute(sql)
+        cur.execute(query)
         row = cur.fetchone()
         return int(row[0]) if row and row[0] is not None else 0
 

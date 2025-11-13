@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, Field
+
+T = TypeVar("T")
 
 # -------------------------
 # Generic response envelope
@@ -25,8 +27,8 @@ class ErrorResponse(BaseModel):
     detail: str
 
 
-class PaginatedResponse(BaseModel):
-    data: List[Any]
+class PaginatedResponse(BaseModel, Generic[T]):
+    data: List[T]
     pagination: PaginationMeta
     filters: FiltersEcho
 

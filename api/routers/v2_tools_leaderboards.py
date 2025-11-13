@@ -6,14 +6,13 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import PlainTextResponse
 
 from api.models_v2 import (
-    LeaderboardsQueryV2,
     LeaderboardsQueryResponseV2,
+    LeaderboardsQueryV2,
     LeaderboardsResultRowV2,
-    PaginationMetaV2,
     PaginatedResponseV2,
+    PaginationMetaV2,
     QueryFiltersEchoV2,
 )
-
 
 router = APIRouter(tags=["tools-v2-leaderboards"])
 

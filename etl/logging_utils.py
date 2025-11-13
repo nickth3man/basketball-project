@@ -2,7 +2,6 @@ import logging
 import os
 from typing import Any, Dict
 
-
 LOG_LEVEL = os.getenv("ETL_LOG_LEVEL", "INFO").upper()
 
 

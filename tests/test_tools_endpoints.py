@@ -9,9 +9,8 @@ These tests intentionally:
 - Do NOT depend on large or specific datasets.
 """
 
-from fastapi.testclient import TestClient
-
 from api.main import create_app
+from fastapi.testclient import TestClient
 
 app = create_app()
 client = TestClient(app)

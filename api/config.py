@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 
 class ApiSettings(BaseSettings):
@@ -16,10 +17,7 @@ class ApiSettings(BaseSettings):
     # Async SQLAlchemy-style PostgreSQL DSN.
     # Default matches local development; override via API_PG_DSN.
     pg_dsn: str = Field(
-        default=(
-            "postgresql+asyncpg://postgres:postgres"
-            "@localhost:5432/basketball"
-        ),
+        default=("postgresql+asyncpg://postgres:postgres" "@localhost:5432/basketball"),
         description="Database connection string for async SQLAlchemy engine.",
     )
 

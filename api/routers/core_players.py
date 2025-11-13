@@ -1,12 +1,21 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, func, or_, select, table, column
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.deps import get_db, get_pagination, parse_bool, parse_comma_ints
+from api.db import (
+    build_pagination_query,
+    build_players_query,
+    get_db,
+    get_pagination,
+    parse_bool,
+    player_season_pg_table,
+    player_season_table,
+    players_table,
+)
 from api.models import (
     ErrorResponse,
     FiltersEcho,
@@ -17,45 +26,6 @@ from api.models import (
 )
 
 router = APIRouter(tags=["players"])
-
-
-def _players_table():
-    return table(
-        "players",
-        column("player_id"),
-        column("slug"),
-        column("full_name"),
-        column("first_name"),
-        column("last_name"),
-        column("is_active"),
-        column("hof_inducted"),
-        column("rookie_year"),
-        column("final_year"),
-    )
-
-
-def _player_season_table():
-    return table(
-        "player_season",
-        column("seas_id"),
-        column("player_id"),
-        column("season_end_year"),
-        column("team_id"),
-        column("team_abbrev"),
-        column("is_total"),
-        column("is_playoffs"),
-    )
-
-
-def _player_season_pg_table():
-    return table(
-        "player_season_per_game",
-        column("seas_id"),
-        column("g"),
-        column("pts_per_g"),
-        column("trb_per_g"),
-        column("ast_per_g"),
-    )
 
 
 @router.get("/players", response_model=PaginatedResponse)
@@ -89,101 +59,45 @@ async def list_players(
 ) -> PaginatedResponse:
     page, page_size = page_data
 
-    filters: List[Any] = []
-    echo: Dict[str, Any] = {}
-
-    ids = parse_comma_ints(player_ids)
-    if ids:
-        filters.append(("player_id", "in", ids))
-        echo["player_ids"] = ids
-
-    if q:
-        echo["q"] = q
-
+    # Parse boolean query parameters
     is_active_val = parse_bool(is_active)
-    if is_active_val is not None:
-        echo["is_active"] = is_active_val
-
     hof_val = parse_bool(hof)
-    if hof_val is not None:
-        echo["hof"] = hof_val
 
-    if from_season is not None:
-        echo["from_season"] = from_season
-    if to_season is not None:
-        echo["to_season"] = to_season
-
-    players = _players_table()
-    query = select(
-        players.c.player_id,
-        players.c.slug,
-        players.c.full_name,
-        players.c.first_name,
-        players.c.last_name,
-        players.c.is_active,
-        players.c.hof_inducted,
-        players.c.rookie_year,
-        players.c.final_year,
+    # Build base query with filters
+    query = build_players_query(
+        filters=[],
+        season_filter=(from_season, to_season) if from_season or to_season else None,
+        search_term=q,
+        active_only=is_active_val,
+        hof_only=hof_val,
     )
 
-    # Optional join to player_season when season filters present
-    if from_season is not None or to_season is not None:
-        ps = _player_season_table()
-        query = query.join(ps, ps.c.player_id == players.c.player_id)
-        season_clauses = []
-        if from_season is not None:
-            season_clauses.append(ps.c.season_end_year >= from_season)
-        if to_season is not None:
-            season_clauses.append(ps.c.season_end_year <= to_season)
-        if season_clauses:
-            query = query.where(and_(*season_clauses))
-
-    # Apply dynamic filters
-    where_clauses = []
-    for key, op, value in filters:
-        col = getattr(players.c, key)
-        if op == "in":
-            where_clauses.append(col.in_(value))
-
-    if is_active_val is not None:
-        where_clauses.append(players.c.is_active.is_(is_active_val))
-    if hof_val is not None:
-        where_clauses.append(players.c.hof_inducted.is_(hof_val))
-
-    if q:
-        pattern = f"%{q.lower()}%"
-        where_clauses.append(
-            or_(
-                func.lower(players.c.full_name).like(pattern),
-                func.lower(players.c.first_name).like(pattern),
-                func.lower(players.c.last_name).like(pattern),
-                func.lower(players.c.slug).like(pattern),
-            )
-        )
-
-    if where_clauses:
-        query = query.where(and_(*where_clauses))
-
-    # Deterministic ordering
-    query = query.order_by(
-        players.c.full_name.nulls_last(),
-        players.c.player_id,
-    )
-
-    # Total count
+    # Get total count
+    # [NOTE][PERF] Counting via subquery is correct but may be slow on large tables.
+    # Consider approximate counts (pg_class.reltuples) for very large datasets.
     count_query = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_query)).scalar_one()
 
-    # Page slice
-    offset = (page - 1) * page_size
-    rows = (await db.execute(query.limit(page_size).offset(offset))).mappings()
+    # Add pagination
+    paginated_query = build_pagination_query(query, page, page_size)
 
+    # Execute query
+    rows = (await db.execute(paginated_query)).mappings()
     data = [Player(**dict(row)) for row in rows]
 
     return PaginatedResponse(
         data=data,
         pagination=PaginationMeta(page=page, page_size=page_size, total=total),
-        filters=FiltersEcho(raw=echo),
+        filters=FiltersEcho(
+            raw={
+                "player_ids": player_ids,
+                "q": q,
+                "is_active": is_active,
+                "hof": hof,
+                "from_season": from_season,
+                "to_season": to_season,
+            }
+        ),
     )
 
 
@@ -196,25 +110,10 @@ async def get_player(
     player_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> Player:
-    players = _players_table()
+    # Build query for single player
+    query = select(players_table).where(players_table.c.player_id == player_id).limit(1)
+    row = (await db.execute(query)).mappings().first()
 
-    stmt = (
-        select(
-            players.c.player_id,
-            players.c.slug,
-            players.c.full_name,
-            players.c.first_name,
-            players.c.last_name,
-            players.c.is_active,
-            players.c.hof_inducted,
-            players.c.rookie_year,
-            players.c.final_year,
-        )
-        .where(players.c.player_id == player_id)
-        .limit(1)
-    )
-
-    row = (await db.execute(stmt)).mappings().first()
     if not row:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -235,35 +134,37 @@ async def get_player_seasons(
 ) -> PaginatedResponse:
     page, page_size = page_data
 
-    ps = _player_season_table()
-    pspg = _player_season_pg_table()
-
-    base = (
+    # Build query for player seasons
+    query = (
         select(
-            ps.c.seas_id,
-            ps.c.player_id,
-            ps.c.season_end_year,
-            ps.c.team_id,
-            ps.c.team_abbrev,
-            ps.c.is_total,
-            ps.c.is_playoffs,
-            pspg.c.g,
-            pspg.c.pts_per_g,
-            pspg.c.trb_per_g,
-            pspg.c.ast_per_g,
+            player_season_table.c.seas_id,
+            player_season_table.c.player_id,
+            player_season_table.c.season_end_year,
+            player_season_table.c.team_id,
+            player_season_table.c.team_abbrev,
+            player_season_table.c.is_total,
+            player_season_table.c.is_playoffs,
+            player_season_pg_table.c.g,
+            player_season_pg_table.c.pts_per_g,
+            player_season_pg_table.c.trb_per_g,
+            player_season_pg_table.c.ast_per_g,
         )
-        .join(pspg, pspg.c.seas_id == ps.c.seas_id, isouter=True)
-        .where(ps.c.player_id == player_id)
-        .order_by(ps.c.season_end_year, ps.c.seas_id)
+        .join(
+            player_season_pg_table,
+            player_season_pg_table.c.seas_id == player_season_table.c.seas_id,
+            isouter=True,
+        )
+        .where(player_season_table.c.player_id == player_id)
+        .order_by(player_season_table.c.season_end_year, player_season_table.c.seas_id)
     )
 
-    count_stmt = select(func.count()).select_from(base.subquery())
+    # Get total count
+    count_stmt = select(func.count()).select_from(query.subquery())
     total = (await db.execute(count_stmt)).scalar_one()
 
+    # Add pagination and execute
     offset = (page - 1) * page_size
-    rows = (
-        await db.execute(base.limit(page_size).offset(offset))
-    ).mappings()
+    rows = (await db.execute(query.limit(page_size).offset(offset))).mappings()
 
     data = [PlayerSeasonSummary(**dict(r)) for r in rows]
 

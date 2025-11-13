@@ -26,7 +26,7 @@ import hashlib
 import json
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, Optional
 
 from psycopg import Connection
 

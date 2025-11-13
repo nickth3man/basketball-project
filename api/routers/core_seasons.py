@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-from sqlalchemy import func, select, table, column
+from sqlalchemy import column, func, select, table
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_db, get_pagination
@@ -79,9 +79,7 @@ async def list_seasons(
     total = (await db.execute(count_stmt)).scalar_one()
 
     offset = (page - 1) * page_size
-    rows = (
-        await db.execute(query.limit(page_size).offset(offset))
-    ).mappings()
+    rows = (await db.execute(query.limit(page_size).offset(offset))).mappings()
 
     data = [Season(**dict(r)) for r in rows]
 

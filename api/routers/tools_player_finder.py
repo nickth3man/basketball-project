@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import and_, func, select, table, column
+from sqlalchemy import and_, column, func, select, table
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_db

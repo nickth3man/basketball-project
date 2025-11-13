@@ -6,13 +6,12 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import PlainTextResponse
 
 from api.models_v2 import (
-    QueryFiltersEchoV2,
-    PaginationMetaV2,
     PageSpecV2,
-    StreaksQueryV2,
+    PaginationMetaV2,
+    QueryFiltersEchoV2,
     StreaksQueryResponseV2,
+    StreaksQueryV2,
 )
-
 
 router = APIRouter(tags=["tools-v2-streaks"])
 

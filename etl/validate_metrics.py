@@ -19,7 +19,7 @@ These checks are intentionally broad and permissive. They are guards
 against obviously broken ETL/math, not authoritative analytics.
 """
 
-from typing import Iterable, Tuple
+from typing import Tuple
 
 from psycopg import Connection
 

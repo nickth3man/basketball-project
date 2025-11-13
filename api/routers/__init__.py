@@ -13,30 +13,53 @@ This module exposes routers so `api.main` can import them via
 
 # v1 / legacy routers ---------------------------------------------------------
 
-from . import core_games
-from . import core_pbp
-from . import core_players
-from . import core_seasons
-from . import core_teams
-from . import tools_player_finder
-from . import tools_team_finder
-from . import tools_streaks
-from . import tools_span
-from . import tools_versus
-from . import tools_event_finder as tools_pbp_search
-from . import tools_leaderboards
-from . import tools_splits
+from . import (
+    core_games,
+    core_pbp,
+    core_players,
+    core_seasons,
+    core_teams,
+    health,
+    tools_event_finder,
+    tools_leaderboards,
+    tools_player_finder,
+    tools_span,
+    tools_splits,
+    tools_streaks,
+    tools_team_finder,
+    tools_versus,
+    v2_metrics,
+    v2_saved_queries,
+    v2_tools_leaderboards,
+    v2_tools_spans,
+    v2_tools_splits,
+    v2_tools_streaks,
+    v2_tools_versus,
+)
 
-# v2 tool routers (additive; do not modify v1 behavior) ----------------------
-
-from . import v2_tools_streaks
-from . import v2_tools_spans
-from . import v2_tools_leaderboards
-from . import v2_tools_splits
-from . import v2_tools_versus
-from . import v2_metrics
-from . import v2_saved_queries
-
-# health / readiness routers -------------------------------------------------
-
-from . import health
+__all__ = [
+    # v1 / legacy routers
+    "core_games",
+    "core_pbp",
+    "core_players",
+    "core_seasons",
+    "core_teams",
+    "tools_event_finder",
+    "tools_leaderboards",
+    "tools_player_finder",
+    "tools_span",
+    "tools_splits",
+    "tools_streaks",
+    "tools_team_finder",
+    "tools_versus",
+    # v2 routers
+    "v2_metrics",
+    "v2_saved_queries",
+    "v2_tools_leaderboards",
+    "v2_tools_spans",
+    "v2_tools_splits",
+    "v2_tools_streaks",
+    "v2_tools_versus",
+    # health
+    "health",
+]

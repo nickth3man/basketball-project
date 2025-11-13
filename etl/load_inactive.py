@@ -123,10 +123,7 @@ def load_inactive_players(config: Config, conn: Connection) -> None:
         return
 
     # Deduplicate (game_id, player_id)
-    df = (
-        df.select(["game_id", "player_id"])
-        .unique()
-    )
+    df = df.select(["game_id", "player_id"]).unique()
 
     truncate_table(conn, "inactive_players")
     copy_from_polars(df, "inactive_players", conn)

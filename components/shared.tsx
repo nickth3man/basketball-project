@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import {
-  PaginationMeta,
-  TableColumn,
-} from "../lib/types";
+import type { TableColumn } from "../lib/types";
 
 /**
  * Lightweight search bar with debounced onSearch callback.
@@ -200,6 +197,8 @@ export function PaginationControls(props: {
 export function DataTable<T extends Record<string, any>>(props: {
   columns: TableColumn<T>[];
   rows: T[];
+  // When provided, DataTable renders footer controls. The shape matches
+  // the backend PaginationMeta type.
   pagination?: {
     page: number;
     page_size: number;
@@ -274,7 +273,7 @@ export function DataTable<T extends Record<string, any>>(props: {
                     {col.render
                       ? col.render(row)
                       : (row[col.key as keyof T] as any)?.toString?.() ??
-                        ""}
+                      ""}
                   </td>
                 ))}
               </tr>
@@ -318,8 +317,14 @@ export function ErrorState({ error }: { error: string }) {
  * Tool result summary for /tools/* pages.
  */
 export function ToolResultSummary(props: {
-  pagination?: PaginationMeta;
-  filters?: FiltersEcho;
+  pagination?: {
+    page: number;
+    page_size: number;
+    total: number;
+  };
+  filters?: {
+    raw: Record<string, unknown> | null;
+  };
 }) {
   const { pagination, filters } = props;
 
@@ -331,8 +336,8 @@ export function ToolResultSummary(props: {
     <div className="tool-result-summary">
       {pagination && (
         <div>
-          Rows {pagination.page_size} per page; total {pagination.total} on page{" "}
-          {pagination.page}.
+          Rows {pagination.page_size} per page; total {pagination.total} on
+          page {pagination.page}.
         </div>
       )}
       {filters && filters.raw && (

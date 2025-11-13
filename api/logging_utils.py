@@ -17,15 +17,11 @@ def _configure_root_logger() -> None:
     """
     root = logging.getLogger()
     if root.handlers:
-        # Assume already configured (e.g., by create_app()).
+        # Assume already configured by the hosting process.
         return
 
     level_name = os.getenv("API_LOG_LEVEL", "INFO").upper()
-    try:
-        level = getattr(logging, level_name, logging.INFO)
-    except Exception:  # noqa: BLE001
-        level = logging.INFO
-
+    level = getattr(logging, level_name, logging.INFO)
     handler = logging.StreamHandler()
 
     class JsonFormatter(logging.Formatter):
@@ -39,7 +35,7 @@ def _configure_root_logger() -> None:
                 "message": record.getMessage(),
             }
 
-            # Attach request/response level fields if present via `extra`.
+            # Attach well-known structured fields if present via `extra`.
             for key in (
                 "event",
                 "request_id",
@@ -84,15 +80,13 @@ def log_api_event(
     """
     Log a structured API event.
 
-    Constraints:
     - Always includes `event`.
-    - Never logs sensitive data (callers must not pass secrets).
-    - Uses consistent JSON format via root handler.
+    - Filters out obviously sensitive keys.
+    - Never raises; logging failures are swallowed.
     """
     if not logger.isEnabledFor(level):
         return
 
-    # Defensive filter: drop obviously sensitive keys if passed accidentally.
     sensitive_keys = {
         "password",
         "passwd",
@@ -104,14 +98,19 @@ def log_api_event(
         "refresh_token",
         "secret",
     }
+
     safe_fields: Dict[str, Any] = {}
     for key, value in fields.items():
         if key.lower() in sensitive_keys:
             continue
         safe_fields[key] = value
 
-    logger.log(
-        level,
-        event,
-        extra={"event": event, **safe_fields},
-    )
+    try:
+        logger.log(
+            level,
+            event,
+            extra={"event": event, **safe_fields},
+        )
+    except Exception:
+        # Logging must never interfere with request handling.
+        return

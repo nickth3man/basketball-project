@@ -19,7 +19,7 @@ Rules:
 from __future__ import annotations
 
 import os
-from typing import Optional, Set
+from typing import Optional
 
 import polars as pl
 from psycopg import Connection
@@ -27,8 +27,6 @@ from psycopg import Connection
 from .config import Config
 from .db import copy_from_polars, truncate_table
 from .id_resolution import (
-    SeasonLookup,
-    TeamLookup,
     build_season_lookup,
     build_team_lookup,
     resolve_season_id,
@@ -246,7 +244,13 @@ def load_team_season_hub(config: Config, conn: Connection) -> None:
         is_league_avg,
         ts_id,
     ) in rows:
-        key = (team_id, season_id, season_end_year, bool(is_playoffs), bool(is_league_avg))
+        key = (
+            team_id,
+            season_id,
+            season_end_year,
+            bool(is_playoffs),
+            bool(is_league_avg),
+        )
         ts_map[key] = int(ts_id)
 
     log_structured(
@@ -379,13 +383,19 @@ def _load_team_season_satellite(
     path = resolve_csv_path(config, csv_name)
     df = _read_csv_if_exists(path)
     if df is None:
-        logger.warning("%s load skipped: CSV not found", extra={"table": table_name, "csv": csv_name})
+        logger.warning(
+            "%s load skipped: CSV not found",
+            extra={"table": table_name, "csv": csv_name},
+        )
         return
 
     lookup = _load_team_season_id_lookup(conn)
     df = _attach_team_season_id(df, lookup)
     if df is None or df.is_empty():
-        logger.info("No rows for %s after resolving team_season_id; skipping", extra={"table": table_name})
+        logger.info(
+            "No rows for %s after resolving team_season_id; skipping",
+            extra={"table": table_name},
+        )
         return
 
     truncate_table(conn, table_name)

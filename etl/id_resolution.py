@@ -13,7 +13,7 @@ They implement deterministic resolution rules consistent with:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import polars as pl
 
@@ -89,7 +89,9 @@ def build_player_lookup(
                 by_full_name.setdefault(name, pid)
 
     if aliases_df is not None and not aliases_df.is_empty():
-        for row in aliases_df.select(["alias_value", "player_id"]).iter_rows(named=True):
+        for row in aliases_df.select(["alias_value", "player_id"]).iter_rows(
+            named=True
+        ):
             alias = (row.get("alias_value") or "").strip().lower()
             pid = row.get("player_id")
             if alias and pid is not None:
@@ -129,7 +131,11 @@ def build_team_lookup(
                 by_abbrev.setdefault(abbr.upper(), tid)
 
     if team_history_df is not None and not team_history_df.is_empty():
-        cols = [c for c in ["team_id", "season_end_year", "team_abbrev"] if c in team_history_df.columns]
+        cols = [
+            c
+            for c in ["team_id", "season_end_year", "team_abbrev"]
+            if c in team_history_df.columns
+        ]
         if {"team_id", "season_end_year"}.issubset(set(cols)):
             for row in team_history_df.select(cols).iter_rows(named=True):
                 tid = int(row["team_id"])
@@ -167,9 +173,9 @@ def build_season_lookup(seasons_df: pl.DataFrame) -> SeasonLookup:
     """
     by_year_lg: Dict[Tuple[int, str], int] = {}
     if not seasons_df.is_empty():
-        for row in seasons_df.select(
-            ["season_id", "season_end_year", "lg"]
-        ).iter_rows(named=True):
+        for row in seasons_df.select(["season_id", "season_end_year", "lg"]).iter_rows(
+            named=True
+        ):
             sid = int(row["season_id"])
             year = int(row["season_end_year"])
             lg = (row.get("lg") or "NBA").strip().upper()

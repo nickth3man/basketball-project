@@ -36,8 +36,6 @@ from .config import Config
 from .db import copy_from_polars, truncate_table
 from .id_resolution import (
     GameLookup,
-    SeasonLookup,
-    TeamLookup,
     build_game_lookup,
     build_season_lookup,
     build_team_lookup,
@@ -320,7 +318,7 @@ def load_boxscore_team(
         logger.warning("boxscore_team load skipped: linescore.csv not found")
         return
 
-    other_df = _read_csv_if_exists(other_path)
+    _other_df = _read_csv_if_exists(other_path)  # noqa: F841
 
     with conn.cursor() as cur:
         cur.execute("SELECT game_id, home_team_id, away_team_id FROM games")
@@ -384,9 +382,9 @@ def load_boxscore_team(
     if mode in ("incremental_by_season", "incremental_by_date_range") and mode_params:
         # Join against games table in DB to constrain; simple approach:
         # rely on games_df already read from DB which reflects post-insert state.
-        games_subset = games_df
+        _games_subset = games_df  # noqa: F841
         if mode == "incremental_by_season" and mode_params.get("seasons"):
-            seasons = mode_params["seasons"]
+            _seasons = mode_params["seasons"]  # noqa: F841
             # No direct season_end_year in games_df snapshot here; assume games filtered earlier.
             # We conservatively rely on line_df already restricted via prior games load.
             pass

@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, status
+from metrics.registry import RegistryUnavailableError, load_registry
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from api.db import AsyncSessionMaker
+from api.db import AsyncSessionLocal
 from api.logging_utils import get_logger, log_api_event
 from api.models import HealthStatus, ReadinessCheck, ReadinessResponse
-from metrics.registry import RegistryUnavailableError, load_registry
 
 logger = get_logger(__name__)
 router = APIRouter(tags=["health"])
@@ -24,7 +24,7 @@ router = APIRouter(tags=["health"])
 
 async def _check_db() -> ReadinessCheck:
     try:
-        async with AsyncSessionMaker() as session:
+        async with AsyncSessionLocal() as session:
             await session.execute(text("SELECT 1"))
         return ReadinessCheck(name="db", status="ok")
     except SQLAlchemyError as exc:  # pragma: no cover - defensive
@@ -57,7 +57,7 @@ async def _check_migrations() -> ReadinessCheck:
             message="No migration files found in db/migrations",
         )
 
-    async with AsyncSessionMaker() as session:
+    async with AsyncSessionLocal() as session:
         try:
             # Check existence of schema_migrations table by a lightweight query.
             result = await session.execute(
@@ -125,7 +125,7 @@ async def _check_etl_status() -> ReadinessCheck:
     - If table missing: warn.
     - If last run failed or stale: warn.
     """
-    async with AsyncSessionMaker() as session:
+    async with AsyncSessionLocal() as session:
         try:
             result = await session.execute(
                 text(
@@ -300,7 +300,7 @@ async def health_etl() -> HealthStatus:
     """
     details: Dict[str, Any] = {"runs": []}
 
-    async with AsyncSessionMaker() as session:
+    async with AsyncSessionLocal() as session:
         try:
             result = await session.execute(
                 text(

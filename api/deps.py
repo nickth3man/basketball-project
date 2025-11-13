@@ -69,10 +69,19 @@ def parse_comma_ints(value: str | None) -> List[int]:
 
     Returns [] for None/empty.
     Raises 400 on invalid integers.
+
+    [SECURITY] Input validation prevents injection via integer parsing.
+    [PERF] List comprehension is efficient for small lists (<1000 items).
+
+    Preconditions: value is None or a string.
+    Postconditions: Returns list of integers or raises HTTPException.
+    Side effects: None.
     """
     if not value:
         return []
     try:
+        # [NOTE][SECURITY] int() conversion is safe; ValueError on invalid input.
+        # No risk of code injection here.
         return [int(v) for v in value.split(",") if v.strip()]
     except ValueError as exc:
         raise HTTPException(
