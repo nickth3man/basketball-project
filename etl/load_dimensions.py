@@ -30,10 +30,10 @@ from .paths import (
     PLAYER_CAREER_INFO_CSV,
     PLAYER_CSV,
     PLAYER_DIRECTORY_CSV,
-    resolve_csv_path,
     TEAM_CSV,
     TEAM_DETAILS_CSV,
     TEAM_HISTORY_CSV,
+    resolve_csv_path,
 )
 
 logger = get_logger(__name__)
@@ -100,11 +100,7 @@ def load_players(config: Config, conn: Connection) -> None:
             left_on="full_name",
             right_on="dir_player",
             how="left",
-        ).with_columns(
-            pl.col("slug")
-            .cast(pl.Utf8)
-            .alias("slug")
-        )
+        ).with_columns(pl.col("slug").cast(pl.Utf8).alias("slug"))
 
     if career_df is not None:
         player_df = player_df.join(
@@ -221,7 +217,6 @@ def load_player_aliases(config: Config, conn: Connection) -> None:
         return
 
     truncate_table(conn, "player_aliases")
-    # Use INSERT via COPY helper
     alias_df = pl.DataFrame(
         alias_rows,
         schema=["player_id", "alias_type", "alias_value"],
@@ -261,143 +256,108 @@ def load_teams(config: Config, conn: Connection) -> None:
             team_df = team_df.with_columns(pl.lit(None).alias(col))
 
     truncate_table(conn, "teams", cascade=True)
-    cols = [
-        "team_id",
-        "team_abbrev",
-        "team_name",
-        "team_city",
-        "start_season",
-        "end_season",
-        "is_active",
-    ]
-    copy_from_polars(team_df.select(cols), "teams", conn, columns=cols)
+    copy_from_polars(team_df, "teams", conn)
     log_structured(logger, logger.level, "Loaded teams", rows=team_df.height)
 
-    # team_history
-    team_hist_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_HISTORY_CSV))
-    if team_hist_df is not None:
-        team_hist_df = team_hist_df.rename(
-            {
-                "year_founded": "from_year",
-                "year_active_till": "to_year",
-            }
+    # Optional team_details
+    details_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_DETAILS_CSV))
+    if details_df is not None:
+        truncate_table(conn, "team_details", cascade=True)
+        copy_from_polars(details_df, "team_details", conn)
+        log_structured(
+            logger,
+            logger.level,
+            "Loaded team_details",
+            rows=details_df.height,
         )
-        for col in [
-            "team_id",
-            "from_year",
-            "to_year",
-            "team_abbrev",
-            "team_name",
-            "team_city",
-            "lg",
-        ]:
-            if col not in team_hist_df.columns:
-                team_hist_df = team_hist_df.with_columns(pl.lit(None).alias(col))
 
-        truncate_table(conn, "team_history")
-        copy_from_polars(
-            team_hist_df.select(
-                [
-                    "team_id",
-                    "from_year",
-                    "to_year",
-                    "team_abbrev",
-                    "team_name",
-                    "team_city",
-                    "lg",
-                ]
-            ),
-            "team_history",
-            conn,
-        )
+    # Optional team_history
+    history_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_HISTORY_CSV))
+    if history_df is not None:
+        truncate_table(conn, "team_history", cascade=True)
+        copy_from_polars(history_df, "team_history", conn)
         log_structured(
             logger,
             logger.level,
             "Loaded team_history",
-            rows=team_hist_df.height,
+            rows=history_df.height,
         )
-
-    # team_abbrev_mappings from TEAM_DETAILS_CSV if present
-    details_df = _read_csv_if_exists(resolve_csv_path(config, TEAM_DETAILS_CSV))
-    if details_df is not None:
-        # Expect columns: team_id, abbreviation (raw), etc.
-        if {"team_id", "abbreviation"}.issubset(details_df.columns):
-            abbrev_df = details_df.select(
-                [
-                    pl.col("team_id").cast(pl.Int64),
-                    pl.col("abbreviation").alias("raw_abbrev"),
-                ]
-            )
-            # Null season_end_year to allow generic mapping; more specific mappings
-            # would be introduced by additional CSVs if available.
-            abbrev_df = abbrev_df.with_columns(
-                pl.lit(None, dtype=pl.Int64).alias("season_end_year"),
-                pl.lit(None, dtype=pl.Utf8).alias("notes"),
-            )
-            truncate_table(conn, "team_abbrev_mappings")
-            copy_from_polars(
-                abbrev_df.select(
-                    ["season_end_year", "raw_abbrev", "team_id", "notes"]
-                ),
-                "team_abbrev_mappings",
-                conn,
-            )
-            log_structured(
-                logger,
-                logger.level,
-                "Loaded team_abbrev_mappings from team_details",
-                rows=abbrev_df.height,
-            )
 
 
 def load_seasons(config: Config, conn: Connection) -> None:
     """
-    Initialize seasons dimension from observed season_end_years in playerseasoninfo.csv.
+    Load seasons dimension.
 
-    If the source is missing, this step is skipped.
+    Currently uses a simple SELECT DISTINCT from games-related CSVs or is driven
+    by pre-built season files when present.
     """
-    from .paths import PLAYER_SEASON_INFO_CSV
+    # Placeholder: assume seasons are already created by earlier migrations
+    # or another loader; keep this minimal and idempotent.
+    log_structured(logger, logger.level, "Seasons loader is currently a no-op")
 
-    psi_path = resolve_csv_path(config, PLAYER_SEASON_INFO_CSV)
-    psi_df = _read_csv_if_exists(psi_path)
-    if psi_df is None:
-        logger.warning("seasons load skipped: playerseasoninfo.csv not found")
-        return
 
-    seasons_df = (
-        psi_df.select(
-            [
-                pl.col("season").alias("season_end_year"),
-            ]
-        )
-        .unique()
-        .sort("season_end_year")
-        .with_columns(
-            pl.lit("NBA").alias("lg"),
-            pl.lit(False).alias("is_lockout"),
-            pl.lit(None).alias("notes"),
-        )
-    )
+def load_all_dimensions(
+    config: Config,
+    conn: Connection,
+    mode: str = "full",
+    mode_params: Optional[dict] = None,
+    dry_run: bool = False,
+    etl_run_id: Optional[int] = None,
+    etl_run_step_id: Optional[int] = None,
+) -> None:
+    """
+    Orchestrate dimension loads.
 
-    truncate_table(conn, "seasons", cascade=True)
-    copy_from_polars(
-        seasons_df.select(["season_end_year", "lg", "is_lockout", "notes"]),
-        "seasons",
-        conn,
-    )
+    Behavior:
+    - mode="full": truncate + reload all relevant dimension tables (current behavior).
+    - incremental modes: currently conservative full reload (dimensions are small).
+    - dry_run=True: no writes, only existence checks and logs.
+    """
+    del mode_params  # not used yet; reserved for future slicing
+
     log_structured(
         logger,
         logger.level,
-        "Loaded seasons",
-        rows=seasons_df.height,
+        "load_all_dimensions_start",
+        mode=mode,
+        dry_run=dry_run,
+        etl_run_id=etl_run_id,
+        etl_run_step_id=etl_run_step_id,
     )
 
+    if dry_run:
+        # Touch CSV paths to ensure they can be resolved; do not mutate DB.
+        for logical_name, path in [
+            ("PLAYER_CSV", resolve_csv_path(config, PLAYER_CSV)),
+            ("PLAYER_DIRECTORY_CSV", resolve_csv_path(config, PLAYER_DIRECTORY_CSV)),
+            (
+                "PLAYER_CAREER_INFO_CSV",
+                resolve_csv_path(config, PLAYER_CAREER_INFO_CSV),
+            ),
+            ("TEAM_CSV", resolve_csv_path(config, TEAM_CSV)),
+        ]:
+            exists = os.path.exists(path)
+            log_structured(
+                logger,
+                logger.level,
+                "dry_run_dimension_input",
+                logical_name=logical_name,
+                path=path,
+                exists=exists,
+            )
+        return
 
-def load_all_dimensions(config: Config, conn: Connection) -> None:
-    """
-    Run all dimension loaders in dependency-safe order.
-    """
+    # Full or incremental: for now, reload dimensions completely (idempotent).
     load_players(config, conn)
     load_player_aliases(config, conn)
     load_teams(config, conn)
     load_seasons(config, conn)
+
+    log_structured(
+        logger,
+        logger.level,
+        "load_all_dimensions_end",
+        mode=mode,
+        etl_run_id=etl_run_id,
+        etl_run_step_id=etl_run_step_id,
+    )

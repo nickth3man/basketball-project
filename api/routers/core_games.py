@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Tuple
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, func, or_, select, table, column
+from sqlalchemy import and_, column, func, select, table
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_db, get_pagination, parse_comma_ints
@@ -147,9 +147,7 @@ async def list_games(
     total = (await db.execute(count_stmt)).scalar_one()
 
     offset = (page - 1) * page_size
-    rows = (
-        await db.execute(query.limit(page_size).offset(offset))
-    ).mappings()
+    rows = (await db.execute(query.limit(page_size).offset(offset))).mappings()
 
     data = [Game(**dict(r)) for r in rows]
 

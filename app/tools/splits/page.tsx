@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runSplits } from "../../../lib/apiClient";
 import {
-  SplitsRequest,
-  SplitsResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsSplits,
+  type SplitsRequest,
+  type SplitsResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Splits Tool
@@ -105,7 +105,7 @@ export default function SplitsPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runSplits(req);
+      const res = await toolsSplits(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Splits tool.");
@@ -192,13 +192,13 @@ export default function SplitsPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) => `${row.subject_id}-${row.split_key}-${idx}`}

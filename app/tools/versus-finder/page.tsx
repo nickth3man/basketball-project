@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runVersusFinder } from "../../../lib/apiClient";
 import {
-  VersusFinderRequest,
-  VersusFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsVersusFinder,
+  type VersusFinderRequest,
+  type VersusFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Versus Finder
@@ -56,8 +56,10 @@ function buildRequest(
   if (!Number.isNaN(sid) && sid > 0) {
     if (filters.entity_type === "team") {
       req.team_id = sid;
+      delete req.player_id;
     } else {
       req.player_id = sid;
+      delete req.team_id;
     }
   }
 
@@ -125,7 +127,7 @@ export default function VersusFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runVersusFinder(req);
+      const res = await toolsVersusFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Versus Finder.");
@@ -208,13 +210,13 @@ export default function VersusFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) =>

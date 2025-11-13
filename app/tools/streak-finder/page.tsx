@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runStreakFinder } from "../../../lib/apiClient";
 import {
-  StreakFinderRequest,
-  StreakFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsStreakFinder,
+  type StreakFinderRequest,
+  type StreakFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Streak Finder
@@ -58,8 +58,10 @@ function buildRequest(
   if (!Number.isNaN(sid) && sid > 0) {
     if (filters.subject_type === "team") {
       req.team_id = sid;
+      delete req.player_id;
     } else {
       req.player_id = sid;
+      delete req.team_id;
     }
   }
 
@@ -133,7 +135,7 @@ export default function StreakFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runStreakFinder(req);
+      const res = await toolsStreakFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Streak Finder.");
@@ -237,13 +239,13 @@ export default function StreakFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) =>

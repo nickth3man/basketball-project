@@ -10,14 +10,12 @@ import {
   ErrorState,
 } from "../../../components/shared";
 import {
-  runPlayerSeasonFinder,
+  toolsPlayerSeasonFinder,
+  type PlayerSeasonFinderRequest,
+  type PlayerSeasonFinderResponseRow,
+  type PaginatedResponse,
 } from "../../../lib/apiClient";
-import {
-  PlayerSeasonFinderRequest,
-  PlayerSeasonFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Player Season Finder
@@ -144,7 +142,7 @@ export default function PlayerSeasonFinderPage() {
 
     try {
       const req = buildRequest(nextFilters);
-      const res = await runPlayerSeasonFinder(req);
+      const res = await toolsPlayerSeasonFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Player Season Finder.");
@@ -225,7 +223,7 @@ export default function PlayerSeasonFinderPage() {
               : "",
             is_playoffs:
               (values as any).is_playoffs === "true" ||
-              (values as any).is_playoffs === "false"
+                (values as any).is_playoffs === "false"
                 ? String((values as any).is_playoffs)
                 : "",
           });
@@ -248,13 +246,13 @@ export default function PlayerSeasonFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row) => row.seas_id}

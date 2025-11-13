@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runLeaderboards } from "../../../lib/apiClient";
 import {
-  LeaderboardsRequest,
-  LeaderboardsResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsLeaderboards,
+  type LeaderboardsRequest,
+  type LeaderboardsResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Leaderboards Tool
@@ -34,8 +34,11 @@ const columns: TableColumn<LeaderboardsResponseRow>[] = [
 ];
 
 function parseInitialFilters(searchParams: URLSearchParams) {
-  const scope = searchParams.get("scope") || "player_season";
-  const stat = searchParams.get("stat") || "pts_per_g";
+  const scope =
+    (searchParams.get("scope") as LeaderboardsRequest["scope"]) ||
+    "player_season";
+  const stat =
+    (searchParams.get("stat") as LeaderboardsRequest["stat"]) || "pts";
   const season_end_year = searchParams.get("season_end_year") || "";
   const is_playoffs = searchParams.get("is_playoffs") || "";
   const page = Number(searchParams.get("page") || "1") || 1;
@@ -46,7 +49,7 @@ function buildRequest(
   filters: ReturnType<typeof parseInitialFilters>,
 ): LeaderboardsRequest {
   const req: LeaderboardsRequest = {
-    scope: filters.scope,
+    scope: filters.scope as LeaderboardsRequest["scope"],
     stat: filters.stat,
     page: filters.page || 1,
     page_size: 50,
@@ -111,7 +114,7 @@ export default function LeaderboardsPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runLeaderboards(req);
+      const res = await toolsLeaderboards(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Leaderboards.");
@@ -161,9 +164,7 @@ export default function LeaderboardsPage() {
             label: "Metric",
             type: "select",
             options: [
-              { label: "Points Per Game", value: "pts_per_g" },
-              { label: "Rebounds Per Game", value: "trb_per_g" },
-              { label: "Assists Per Game", value: "ast_per_g" },
+              { label: "Points", value: "pts" },
             ],
           },
           {
@@ -187,13 +188,13 @@ export default function LeaderboardsPage() {
         onSubmit={(values) => {
           void runSearch({
             scope: (values as any).scope || "player_season",
-            stat: (values as any).stat || "pts_per_g",
+            stat: ((values as any).stat as LeaderboardsRequest["stat"]) || "pts",
             season_end_year: (values as any).season_end_year
               ? String((values as any).season_end_year)
               : "",
             is_playoffs:
               (values as any).is_playoffs === "true" ||
-              (values as any).is_playoffs === "false"
+                (values as any).is_playoffs === "false"
                 ? String((values as any).is_playoffs)
                 : "",
           });
@@ -216,13 +217,13 @@ export default function LeaderboardsPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) => `${row.subject_id}-${idx}`}

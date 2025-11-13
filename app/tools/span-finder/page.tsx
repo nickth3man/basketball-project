@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runSpanFinder } from "../../../lib/apiClient";
 import {
-  SpanFinderRequest,
-  SpanFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsSpanFinder,
+  type SpanFinderRequest,
+  type SpanFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Span Finder
@@ -57,8 +57,10 @@ function buildRequest(
   if (!Number.isNaN(sid) && sid > 0) {
     if (filters.subject_type === "team") {
       req.team_id = sid;
+      delete req.player_id;
     } else {
       req.player_id = sid;
+      delete req.team_id;
     }
   }
 
@@ -67,10 +69,7 @@ function buildRequest(
     req.span_length = sl;
   }
 
-  // @ts-expect-error backend may accept metric/stat parameter
-  if (filters.metric) {
-    req.stat = filters.metric;
-  }
+  // metric is not part of SpanFinderRequest schema; omit for now.
 
   return req;
 }
@@ -125,7 +124,7 @@ export default function SpanFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runSpanFinder(req);
+      const res = await toolsSpanFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Span Finder.");
@@ -225,13 +224,13 @@ export default function SpanFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) =>

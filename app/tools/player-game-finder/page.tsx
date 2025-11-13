@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runPlayerGameFinder } from "../../../lib/apiClient";
 import {
-  PlayerGameFinderRequest,
-  PlayerGameFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsPlayerGameFinder,
+  type PlayerGameFinderRequest,
+  type PlayerGameFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Player Game Finder
@@ -122,7 +122,7 @@ export default function PlayerGameFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runPlayerGameFinder(req);
+      const res = await toolsPlayerGameFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Player Game Finder.");
@@ -207,13 +207,13 @@ export default function PlayerGameFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void updateUrlAndRun({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void updateUrlAndRun({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) => `${row.game_id}-${row.player_id}-${idx}`}

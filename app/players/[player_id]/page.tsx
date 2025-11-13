@@ -1,9 +1,10 @@
-import { fetchPlayer, fetchPlayerSeasons } from "../../../lib/apiClient";
 import {
-  Player,
-  PlayerSeasonSummary,
-  PaginatedResponse,
-} from "../../../lib/types";
+  fetchPlayer,
+  fetchPlayerSeasons,
+  type Player,
+  type PlayerSeasonSummary,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
 import { LayoutShell } from "../../../components/LayoutShell";
 import { DataTable } from "../../../components/shared";
 

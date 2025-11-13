@@ -14,10 +14,7 @@ def client() -> TestClient:
     # schema/shape-only and must not mutate data.
     os.environ.setdefault(
         "API_PG_DSN",
-        (
-            "postgresql+asyncpg://postgres:postgres"
-            "@localhost:5432/basketball"
-        ),
+        ("postgresql+asyncpg://postgres:postgres" "@localhost:5432/basketball"),
     )
     app = create_app()
     return TestClient(app)
@@ -69,6 +66,48 @@ def test_player_season_finder_schema(client: TestClient) -> None:
     resp = client.post("/api/v1/tools/player-season-finder", json=payload)
     assert resp.status_code == 200
     body = resp.json()
+    assert set(body.keys()) == {"data", "pagination", "filters"}
+    assert isinstance(body["data"], list)
+    pag = body["pagination"]
+    assert {"page", "page_size", "total"} <= set(pag.keys())
+    assert "raw" in body["filters"]
+
+
+@pytest.mark.skipif(
+    os.getenv("API_SMOKE_SKIP_DB", "").lower() == "true",
+    reason="DB not available; skipping integration-style smoke tests",
+)
+@pytest.mark.parametrize(
+    "path,method,payload",
+    [
+        ("/api/v1/tools/player-game-finder", "POST", {"page": 1, "page_size": 5}),
+        ("/api/v1/tools/team-season-finder", "POST", {"page": 1, "page_size": 5}),
+        (
+            "/api/v1/tools/leaderboards",
+            "POST",
+            {
+                "scope": "player_season",
+                "stat": "pts",
+                "page": 1,
+                "page_size": 5,
+            },
+        ),
+    ],
+)
+def test_tools_endpoints_contract_smoke(
+    client: TestClient,
+    path: str,
+    method: str,
+    payload: dict,
+) -> None:
+    if method == "GET":
+        resp = client.get(path)
+    else:
+        resp = client.post(path, json=payload)
+
+    assert resp.status_code == 200
+    body = resp.json()
+    # All tools endpoints must return the standard envelope.
     assert set(body.keys()) == {"data", "pagination", "filters"}
     assert isinstance(body["data"], list)
     pag = body["pagination"]

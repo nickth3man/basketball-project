@@ -1,0 +1,712 @@
+version: 1
+
+defaults:
+  namespace: "core"
+  categories:
+    box_score:
+      label: "Box Score"
+      description: "Standard box score counting stats"
+    shooting:
+      label: "Shooting"
+      description: "Field goal, three-point, and free throw efficiency"
+    advanced:
+      label: "Advanced"
+      description: "Advanced rate and impact metrics"
+    rate:
+      label: "Rates / Percentages"
+      description: "Per-game or percentage-based rate metrics"
+
+metrics:
+  # ---------------------------------------------------------------------------
+  # Player game-level metrics (boxscore_line)
+  # ---------------------------------------------------------------------------
+  pts_pg:
+    id: pts_pg
+    name: "Points"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: pts
+    base_table: boxscore_line
+    requires: []
+    unit: "points"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "PTS"
+      long_label: "Points"
+      description: "Points scored"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  ast_pg:
+    id: ast_pg
+    name: "Assists"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: ast
+    base_table: boxscore_line
+    requires: []
+    unit: "assists"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "AST"
+      long_label: "Assists"
+      description: "Assists recorded"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  trb_pg:
+    id: trb_pg
+    name: "Total Rebounds"
+    category: box_score
+    entity_type: player
+    level: game
+    source: expression
+    expression: "COALESCE(orb, 0) + COALESCE(drb, 0)"
+    base_table: boxscore_line
+    requires: ["oreb_pg", "dreb_pg"]
+    unit: "rebounds"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "TRB"
+      long_label: "Total Rebounds"
+      description: "Total rebounds (offensive + defensive)"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  stl_pg:
+    id: stl_pg
+    name: "Steals"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: stl
+    base_table: boxscore_line
+    requires: []
+    unit: "steals"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "STL"
+      long_label: "Steals"
+      description: "Steals recorded"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  blk_pg:
+    id: blk_pg
+    name: "Blocks"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: blk
+    base_table: boxscore_line
+    requires: []
+    unit: "blocks"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "BLK"
+      long_label: "Blocks"
+      description: "Blocks recorded"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  tov_pg:
+    id: tov_pg
+    name: "Turnovers"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: tov
+    base_table: boxscore_line
+    requires: []
+    unit: "turnovers"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "TOV"
+      long_label: "Turnovers"
+      description: "Turnovers committed"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  pf_pg:
+    id: pf_pg
+    name: "Personal Fouls"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: pf
+    base_table: boxscore_line
+    requires: []
+    unit: "fouls"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "PF"
+      long_label: "Personal Fouls"
+      description: "Personal fouls committed"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fgm_pg:
+    id: fgm_pg
+    name: "Field Goals Made"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: fg
+    base_table: boxscore_line
+    requires: []
+    unit: "fgm"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FGM"
+      long_label: "Field Goals Made"
+      description: "Field goals made"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fga_pg:
+    id: fga_pg
+    name: "Field Goals Attempted"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: fga
+    base_table: boxscore_line
+    requires: []
+    unit: "fga"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FGA"
+      long_label: "Field Goals Attempted"
+      description: "Field goals attempted"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fg3m_pg:
+    id: fg3m_pg
+    name: "3P Made"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: fg3
+    base_table: boxscore_line
+    requires: []
+    unit: "3pm"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "3PM"
+      long_label: "3-Point Field Goals Made"
+      description: "3-point field goals made"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fg3a_pg:
+    id: fg3a_pg
+    name: "3P Attempted"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: fg3a
+    base_table: boxscore_line
+    requires: []
+    unit: "3pa"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "3PA"
+      long_label: "3-Point Field Goals Attempted"
+      description: "3-point field goals attempted"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  ftm_pg:
+    id: ftm_pg
+    name: "Free Throws Made"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: ft
+    base_table: boxscore_line
+    requires: []
+    unit: "ftm"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FTM"
+      long_label: "Free Throws Made"
+      description: "Free throws made"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fta_pg:
+    id: fta_pg
+    name: "Free Throws Attempted"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: fta
+    base_table: boxscore_line
+    requires: []
+    unit: "fta"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FTA"
+      long_label: "Free Throws Attempted"
+      description: "Free throws attempted"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  oreb_pg:
+    id: oreb_pg
+    name: "Offensive Rebounds"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: orb
+    base_table: boxscore_line
+    requires: []
+    unit: "oreb"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "ORB"
+      long_label: "Offensive Rebounds"
+      description: "Offensive rebounds"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  dreb_pg:
+    id: dreb_pg
+    name: "Defensive Rebounds"
+    category: box_score
+    entity_type: player
+    level: game
+    source: column
+    expression: drb
+    base_table: boxscore_line
+    requires: []
+    unit: "dreb"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "DRB"
+      long_label: "Defensive Rebounds"
+      description: "Defensive rebounds"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  # ---------------------------------------------------------------------------
+  # Team game-level metrics (team_boxscore_line)
+  # ---------------------------------------------------------------------------
+  pts_tg:
+    id: pts_tg
+    name: "Team Points"
+    category: box_score
+    entity_type: team
+    level: game
+    source: column
+    expression: pts
+    base_table: team_boxscore_line
+    requires: []
+    unit: "points"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "PTS"
+      long_label: "Team Points"
+      description: "Team points scored"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fgm_tg:
+    id: fgm_tg
+    name: "Team FGM"
+    category: box_score
+    entity_type: team
+    level: game
+    source: column
+    expression: fg
+    base_table: team_boxscore_line
+    requires: []
+    unit: "fgm"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FGM"
+      long_label: "Team Field Goals Made"
+      description: "Team field goals made"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  fga_tg:
+    id: fga_tg
+    name: "Team FGA"
+    category: box_score
+    entity_type: team
+    level: game
+    source: column
+    expression: fga
+    base_table: team_boxscore_line
+    requires: []
+    unit: "fga"
+    precision: 0
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "FGA"
+      long_label: "Team Field Goals Attempted"
+      description: "Team field goals attempted"
+      format: "number"
+    constraints:
+      monotonic_non_negative: true
+
+  # ---------------------------------------------------------------------------
+  # Player season advanced metrics (vw_player_season_advanced)
+  # ---------------------------------------------------------------------------
+  pts_ps:
+    id: pts_ps
+    name: "Season Points"
+    category: box_score
+    entity_type: player
+    level: season
+    source: column
+    expression: pts_per_g
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "points_per_g"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "PTS/G"
+      long_label: "Points Per Game"
+      description: "Points per game in a season"
+      format: "number"
+
+  trb_ps:
+    id: trb_ps
+    name: "Season Rebounds"
+    category: box_score
+    entity_type: player
+    level: season
+    source: column
+    expression: trb_per_g
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "rebounds_per_g"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "TRB/G"
+      long_label: "Rebounds Per Game"
+      description: "Rebounds per game in a season"
+      format: "number"
+
+  ast_ps:
+    id: ast_ps
+    name: "Season Assists"
+    category: box_score
+    entity_type: player
+    level: season
+    source: column
+    expression: ast_per_g
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "assists_per_g"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "AST/G"
+      long_label: "Assists Per Game"
+      description: "Assists per game in a season"
+      format: "number"
+
+  fg_pct_ps:
+    id: fg_pct_ps
+    name: "FG%"
+    category: shooting
+    entity_type: player
+    level: season
+    source: column
+    expression: fg_pct
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "ratio"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "FG%"
+      long_label: "Field Goal Percentage"
+      description: "Field goal percentage"
+      format: "percent"
+
+  fg3_pct_ps:
+    id: fg3_pct_ps
+    name: "3P%"
+    category: shooting
+    entity_type: player
+    level: season
+    source: column
+    expression: fg3_pct
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "ratio"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "3P%"
+      long_label: "3-Point Percentage"
+      description: "3-point field goal percentage"
+      format: "percent"
+
+  ft_pct_ps:
+    id: ft_pct_ps
+    name: "FT%"
+    category: shooting
+    entity_type: player
+    level: season
+    source: column
+    expression: ft_pct
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "ratio"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "FT%"
+      long_label: "Free Throw Percentage"
+      description: "Free throw percentage"
+      format: "percent"
+
+  ts_pct_ps:
+    id: ts_pct_ps
+    name: "TS%"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: ts_pct
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "ratio"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "TS%"
+      long_label: "True Shooting Percentage"
+      description: "True shooting percentage"
+      format: "percent"
+
+  efg_pct_ps:
+    id: efg_pct_ps
+    name: "eFG%"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: efg_pct
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "ratio"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "eFG%"
+      long_label: "Effective Field Goal Percentage"
+      description: "Effective field goal percentage"
+      format: "percent"
+
+  per_ps:
+    id: per_ps
+    name: "PER"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: per
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "index"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "PER"
+      long_label: "Player Efficiency Rating"
+      description: "Player Efficiency Rating"
+      format: "number"
+
+  ws_ps:
+    id: ws_ps
+    name: "Win Shares"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: ws
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "wins"
+    precision: 1
+    allowed_aggregations: ["sum", "avg"]
+    display:
+      short_label: "WS"
+      long_label: "Win Shares"
+      description: "Win Shares"
+      format: "number"
+
+  ws48_ps:
+    id: ws48_ps
+    name: "WS/48"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: ws_per_48
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "wins_per_48"
+    precision: 3
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "WS/48"
+      long_label: "Win Shares Per 48 Minutes"
+      description: "Win Shares per 48 minutes"
+      format: "number"
+
+  bpm_ps:
+    id: bpm_ps
+    name: "BPM"
+    category: advanced
+    entity_type: player
+    level: season
+    source: column
+    expression: bpm
+    base_table: vw_player_season_advanced
+    requires: []
+    unit: "index"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "BPM"
+      long_label: "Box Plus/Minus"
+      description: "Box Plus/Minus"
+      format: "number"
+
+  # ---------------------------------------------------------------------------
+  # Team season advanced metrics (vw_team_season_advanced)
+  # ---------------------------------------------------------------------------
+  mov_ts:
+    id: mov_ts
+    name: "Margin of Victory"
+    category: advanced
+    entity_type: team
+    level: season
+    source: column
+    expression: mov
+    base_table: vw_team_season_advanced
+    requires: []
+    unit: "points_per_game"
+    precision: 2
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "MOV"
+      long_label: "Margin of Victory"
+      description: "Average scoring margin per game"
+      format: "number"
+
+  ortg_ts:
+    id: ortg_ts
+    name: "Offensive Rating"
+    category: advanced
+    entity_type: team
+    level: season
+    source: column
+    expression: ortg
+    base_table: vw_team_season_advanced
+    requires: []
+    unit: "points_per_100"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "ORTG"
+      long_label: "Offensive Rating"
+      description: "Points scored per 100 possessions"
+      format: "number"
+
+  drtg_ts:
+    id: drtg_ts
+    name: "Defensive Rating"
+    category: advanced
+    entity_type: team
+    level: season
+    source: column
+    expression: drtg
+    base_table: vw_team_season_advanced
+    requires: []
+    unit: "points_per_100"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "DRTG"
+      long_label: "Defensive Rating"
+      description: "Points allowed per 100 possessions"
+      format: "number"
+
+  nrtg_ts:
+    id: nrtg_ts
+    name: "Net Rating"
+    category: advanced
+    entity_type: team
+    level: season
+    source: column
+    expression: nrtg
+    base_table: vw_team_season_advanced
+    requires: []
+    unit: "points_per_100"
+    precision: 1
+    allowed_aggregations: ["avg"]
+    display:
+      short_label: "NRTG"
+      long_label: "Net Rating"
+      description: "Net points per 100 possessions"
+      format: "number"

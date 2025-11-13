@@ -1,0 +1,284 @@
+version: 1
+
+defaults:
+  on_missing_column: error
+  on_extra_column: warn
+  on_type_mismatch: warn
+  on_primary_key_violation: error
+  on_null_in_required: error
+  on_row_count_zero: warn
+  hash_algorithm: sha256
+
+csv_sources:
+  players:
+    path_pattern: players/*.csv
+    required: true
+    schema:
+      columns:
+        - name: player_id
+          type: int
+          nullable: false
+        - name: slug
+          type: text
+          nullable: true
+        - name: full_name
+          type: text
+          nullable: true
+      primary_key:
+        - player_id
+    drift_policy: {}
+
+  teams:
+    path_pattern: teams/*.csv
+    required: true
+    schema:
+      columns:
+        - name: team_id
+          type: int
+          nullable: false
+        - name: team_abbrev
+          type: text
+          nullable: false
+      primary_key:
+        - team_id
+    drift_policy: {}
+
+  seasons:
+    path_pattern: seasons/*.csv
+    required: true
+    schema:
+      columns:
+        - name: season_id
+          type: int
+          nullable: false
+        - name: season_end_year
+          type: int
+          nullable: false
+        - name: lg
+          type: text
+          nullable: true
+      primary_key:
+        - season_id
+    drift_policy: {}
+
+  games:
+    path_pattern: games/*.csv
+    required: true
+    schema:
+      columns:
+        - name: game_id
+          type: text
+          nullable: false
+        - name: season_end_year
+          type: int
+          nullable: true
+        - name: lg
+          type: text
+          nullable: true
+        - name: game_date_est
+          type: date
+          nullable: true
+        - name: home_team_abbrev
+          type: text
+          nullable: true
+        - name: away_team_abbrev
+          type: text
+          nullable: true
+      primary_key:
+        - game_id
+    drift_policy: {}
+
+  boxscores:
+    path_pattern: boxscores/*.csv
+    required: false
+    schema:
+      columns:
+        - name: game_id
+          type: text
+          nullable: false
+        - name: team_abbrev
+          type: text
+          nullable: false
+      primary_key:
+        - game_id
+        - team_abbrev
+    drift_policy: {}
+
+  pbp_events:
+    path_pattern: pbp/*.csv
+    required: false
+    schema:
+      columns:
+        - name: game_id
+          type: text
+          nullable: false
+        - name: eventnum
+          type: int
+          nullable: false
+      primary_key:
+        - game_id
+        - eventnum
+    drift_policy: {}
+
+  awards:
+    path_pattern: awards/*.csv
+    required: false
+    schema:
+      columns:
+        - name: season_end_year
+          type: int
+          nullable: true
+        - name: lg
+          type: text
+          nullable: true
+        - name: player
+          type: text
+          nullable: true
+      primary_key: []
+    drift_policy: {}
+
+  draft:
+    path_pattern: draft/*.csv
+    required: false
+    schema:
+      columns:
+        - name: season_end_year
+          type: int
+          nullable: true
+        - name: lg
+          type: text
+          nullable: true
+        - name: player
+          type: text
+          nullable: true
+      primary_key: []
+    drift_policy: {}
+
+tables:
+  players:
+    expected_columns:
+      - { name: player_id, type: bigint, nullable: false }
+      - { name: slug, type: text, nullable: true }
+      - { name: full_name, type: text, nullable: true }
+    primary_key: [player_id]
+    quality_expectations:
+      min_rows: 1
+
+  teams:
+    expected_columns:
+      - { name: team_id, type: bigint, nullable: false }
+      - { name: team_abbrev, type: text, nullable: false }
+    primary_key: [team_id]
+    quality_expectations:
+      min_rows: 1
+
+  seasons:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: false }
+      - { name: season_end_year, type: int, nullable: false }
+      - { name: lg, type: text, nullable: true }
+    primary_key: [season_id]
+    quality_expectations:
+      min_rows: 1
+
+  games:
+    expected_columns:
+      - { name: game_id, type: text, nullable: false }
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: lg, type: text, nullable: true }
+      - { name: home_team_id, type: bigint, nullable: true }
+      - { name: away_team_id, type: bigint, nullable: true }
+    primary_key: [game_id]
+    quality_expectations:
+      min_rows: 1
+
+  boxscore_team:
+    expected_columns:
+      - { name: game_id, type: text, nullable: false }
+      - { name: team_id, type: bigint, nullable: false }
+    primary_key: [game_id, team_id]
+    quality_expectations:
+      min_rows: 1
+
+  pbp_events:
+    expected_columns:
+      - { name: game_id, type: text, nullable: false }
+      - { name: eventnum, type: int, nullable: false }
+    primary_key: [game_id, eventnum]
+    quality_expectations:
+      min_rows: 0
+
+  player_season:
+    expected_columns:
+      - { name: seas_id, type: bigint, nullable: false }
+      - { name: player_id, type: bigint, nullable: true }
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: team_id, type: bigint, nullable: true }
+    primary_key: [seas_id]
+    quality_expectations:
+      min_rows: 1
+
+  team_season:
+    expected_columns:
+      - { name: team_season_id, type: bigint, nullable: false }
+      - { name: team_id, type: bigint, nullable: true }
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+    primary_key: [team_season_id]
+    quality_expectations:
+      min_rows: 1
+
+  awards_all_star_selections:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: player_id, type: bigint, nullable: true }
+    primary_key: []
+    quality_expectations:
+      min_rows: 0
+
+  awards_player_shares:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: player_id, type: bigint, nullable: true }
+    primary_key: []
+    quality_expectations:
+      min_rows: 0
+
+  awards_end_of_season_teams:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: player_id, type: bigint, nullable: true }
+    primary_key: []
+    quality_expectations:
+      min_rows: 0
+
+  awards_end_of_season_voting:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: player_id, type: bigint, nullable: true }
+    primary_key: []
+    quality_expectations:
+      min_rows: 0
+
+  draft_picks:
+    expected_columns:
+      - { name: season_id, type: bigint, nullable: true }
+      - { name: season_end_year, type: int, nullable: true }
+      - { name: player_id, type: bigint, nullable: true }
+    primary_key: []
+    quality_expectations:
+      min_rows: 0
+
+  inactive_players:
+    expected_columns:
+      - { name: game_id, type: text, nullable: false }
+      - { name: player_id, type: bigint, nullable: false }
+    primary_key: [game_id, player_id]
+    quality_expectations:
+      min_rows: 0

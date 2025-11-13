@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runTeamGameFinder } from "../../../lib/apiClient";
 import {
-  TeamGameFinderRequest,
-  TeamGameFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsTeamGameFinder,
+  type TeamGameFinderRequest,
+  type TeamGameFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Team Game Finder
@@ -120,7 +120,7 @@ export default function TeamGameFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runTeamGameFinder(req);
+      const res = await toolsTeamGameFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Team Game Finder.");
@@ -205,13 +205,13 @@ export default function TeamGameFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) => `${row.game_id}-${row.team_id}-${idx}`}

@@ -1,0 +1,44 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+# System dependencies (minimal, for psycopg/pg support and builds)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency manifests if present (fallback-safe)
+# Adjust this section if your project uses different files (e.g., pyproject.toml).
+COPY requirements.txt requirements.txt
+RUN if [ -f requirements.txt ]; then \
+    pip install --no-cache-dir -r requirements.txt; \
+    fi
+
+# Copy application code
+COPY api /app/api
+COPY etl /app/etl
+COPY metrics /app/metrics
+COPY db /app/db
+COPY scripts /app/scripts
+
+# Ensure var directories exist (for reports/logs, etc.)
+RUN mkdir -p /app/var/reports/validation /app/var/reports/etl
+
+# (Optional) non-root user for runtime
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+
+# Environment-driven configuration:
+# - PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE
+# - ETL_CSV_ROOT, ETL_EXPECTATIONS_PATH
+# - METRICS_REGISTRY_PATH
+# - API_LOG_LEVEL, API_WORKERS
+#
+# Default command: run API via unified CLI.
+CMD ["python", "-m", "scripts.cli", "run-api", "--host", "0.0.0.0", "--port", "8000"]

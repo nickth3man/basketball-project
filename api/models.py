@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
-
 
 # -------------------------
 # Generic response envelope
@@ -275,9 +274,7 @@ class EventFinderResponseRow(BaseModel):
 class LeaderboardsRequest(BaseModel):
     scope: str = Field(
         ...,
-        description=(
-            "One of: player_season, player_career, team_season, single_game"
-        ),
+        description=("One of: player_season, player_career, team_season, single_game"),
     )
     stat: str
     season_end_year: Optional[int] = None
@@ -310,6 +307,27 @@ class SplitsResponseRow(BaseModel):
     split_key: str
     g: int
     pts_per_g: Optional[float] = None
+
+
+# -------------------------
+# Health / readiness models
+# -------------------------
+
+
+class HealthStatus(BaseModel):
+    status: str
+    details: Optional[Dict[str, Any]] = None
+
+
+class ReadinessCheck(BaseModel):
+    name: str
+    status: str
+    message: Optional[str] = None
+
+
+class ReadinessResponse(BaseModel):
+    status: str
+    checks: List[ReadinessCheck]
 
 
 __all__ = [
@@ -345,4 +363,7 @@ __all__ = [
     "LeaderboardsResponseRow",
     "SplitsRequest",
     "SplitsResponseRow",
+    "HealthStatus",
+    "ReadinessCheck",
+    "ReadinessResponse",
 ]

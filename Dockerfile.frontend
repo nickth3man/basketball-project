@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install dependencies (using lockfile when present)
+COPY package.json package-lock.json ./
+RUN if [ -f package-lock.json ]; then \
+    npm ci; \
+    else \
+    npm install; \
+    fi
+
+# Copy Next.js app source
+COPY app /app/app
+COPY components /app/components
+COPY public /app/public
+COPY next-env.d.ts /app/next-env.d.ts
+COPY next.config.js /app/next.config.js
+COPY tsconfig.json /app/tsconfig.json
+
+# Build the frontend for production
+RUN npm run build
+
+# Runtime:
+# - NEXT_PUBLIC_API_BASE_URL should be provided (e.g., http://api:8000)
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]

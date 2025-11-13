@@ -9,13 +9,13 @@ import {
   LoadingState,
   ErrorState,
 } from "../../../components/shared";
-import { runTeamSeasonFinder } from "../../../lib/apiClient";
 import {
-  TeamSeasonFinderRequest,
-  TeamSeasonFinderResponseRow,
-  PaginatedResponse,
-  TableColumn,
-} from "../../../lib/types";
+  toolsTeamSeasonFinder,
+  type TeamSeasonFinderRequest,
+  type TeamSeasonFinderResponseRow,
+  type PaginatedResponse,
+} from "../../../lib/apiClient";
+import type { TableColumn } from "../../../lib/types";
 
 /**
  * Team Season Finder
@@ -127,7 +127,7 @@ export default function TeamSeasonFinderPage() {
 
     try {
       const req = buildRequest(next);
-      const res = await runTeamSeasonFinder(req);
+      const res = await toolsTeamSeasonFinder(req);
       setResult(res);
     } catch (e: any) {
       setError(e?.message || "Failed to run Team Season Finder.");
@@ -208,7 +208,7 @@ export default function TeamSeasonFinderPage() {
               : "",
             is_playoffs:
               (values as any).is_playoffs === "true" ||
-              (values as any).is_playoffs === "false"
+                (values as any).is_playoffs === "false"
                 ? String((values as any).is_playoffs)
                 : "",
           });
@@ -231,13 +231,13 @@ export default function TeamSeasonFinderPage() {
             pagination={
               result.pagination
                 ? {
-                    page: result.pagination.page,
-                    page_size: result.pagination.page_size,
-                    total: result.pagination.total,
-                    onPageChange: (nextPage) => {
-                      void runSearch({ page: nextPage });
-                    },
-                  }
+                  page: result.pagination.page,
+                  page_size: result.pagination.page_size,
+                  total: result.pagination.total,
+                  onPageChange: (nextPage) => {
+                    void runSearch({ page: nextPage });
+                  },
+                }
                 : undefined
             }
             getRowKey={(row, idx) =>

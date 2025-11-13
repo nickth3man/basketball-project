@@ -4,8 +4,9 @@ from typing import Iterable, List, Tuple
 
 from fastapi import HTTPException, Query, status
 
-from .db import AsyncSession, get_db as _get_db
 from .config import get_settings
+from .db import AsyncSession
+from .db import get_db as _get_db
 
 settings = get_settings()
 
