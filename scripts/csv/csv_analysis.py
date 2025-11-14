@@ -24,38 +24,33 @@ import logging
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, TypedDict, Union, TYPE_CHECKING
+from typing import Any, Dict, TypedDict, Union, no_type_check
 
-import matplotlib.pyplot as plt
-import matplotlib.figure
 import matplotlib.axes
+import matplotlib.figure
+import matplotlib.pyplot as plt
 import numpy as np
 import polars as pl
 import seaborn as sns
 from frictionless import Resource, validate
 
-# Type checking imports
-if TYPE_CHECKING:
-    import matplotlib.figure as _figure
-    import matplotlib.axes as _axes
-    import seaborn as _seaborn
 
 # Type definitions for better type safety
 class ValidationResult(TypedDict):
     status: str
     message: str
-    details: List[str]
+    details: list[str]
 
 class TaskInfo(TypedDict):
     valid: bool
-    errors: List[str]
-    warnings: List[str]
+    errors: list[str]
+    warnings: list[str]
 
 class FrictionlessValidation(TypedDict):
     valid: bool
     errors: int
     warnings: int
-    tasks: List[TaskInfo]
+    tasks: list[TaskInfo]
 
 class ProfileData(TypedDict):
     overview: Dict[str, Any]
@@ -70,21 +65,20 @@ logger = logging.getLogger(__name__)
 logger.info("Attempting to import ydata-profiling...")
 
 try:
-    from ydata_profiling import ProfileReport as YDataProfileReport
+    from ydata_profiling import ProfileReport  # type: ignore[import-untyped]
     logger.info("ydata-profiling import successful")
-    # Use alias to avoid type conflicts
-    ProfileReport = YDataProfileReport
-except ImportError as e:
-    logger.error(f"ydata-profiling import failed: {e}")
+except ImportError as exc:
+    logger.error("ydata-profiling import failed: %s", exc)
     logger.info("Creating mock ProfileReport for type checking")
-    
-    # Mock class for type checking when import fails
-    class ProfileReport:
-        def __init__(self, *args: Any, **kwargs: Any) -> None:
+
+    class ProfileReport:  # type: ignore[use-before-def]
+        def __init__(self, *args: Any, **kwargs: Any) -> None:  # pragma: no cover
             pass
-        def to_file(self, path: Union[str, Path]) -> None:
+
+        def to_file(self, path: Union[str, Path]) -> None:  # pragma: no cover
             pass
-        def to_json(self) -> str:
+
+        def to_json(self) -> str:  # pragma: no cover
             return "{}"
 
 # Suppress warnings for cleaner output
@@ -115,9 +109,13 @@ class NBACSVAnalyzer:
         logger.info(f"Loaded {len(self.df)} rows from {self.csv_name}")
 
         # Initialize components
-        self.validation_results = {}
-        self.profile_report = None
-        self.quality_metrics = {}
+        self.validation_results: Dict[str, list[Dict[str, Any]]] = {
+            "passed": [],
+            "failed": [],
+            "warnings": [],
+        }
+        self.profile_report: ProfileData | None = None
+        self.quality_metrics: Dict[str, Any] = {}
 
     def _load_csv(self) -> pl.DataFrame:
         """Load CSV with automatic type inference and error handling."""
@@ -187,7 +185,9 @@ class NBACSVAnalyzer:
             logger.error(f"Failed to generate profile report: {e}")
             return {}
 
-    def validate_with_frictionless(self) -> Union[FrictionlessValidation, Dict[str, str]]:
+    def validate_with_frictionless(
+        self,
+    ) -> Union[FrictionlessValidation, Dict[str, str]]:
         """Validate CSV structure and data types using frictionless."""
         logger.info("Running frictionless validation...")
 
@@ -224,11 +224,15 @@ class NBACSVAnalyzer:
             logger.error(f"Frictionless validation failed: {e}")
             return {"error": str(e)}
 
-    def apply_basketball_validation_rules(self) -> Dict[str, List[Dict[str, Any]]]:
+    def apply_basketball_validation_rules(self) -> Dict[str, list[Dict[str, Any]]]:
         """Apply basketball-specific validation rules based on NBA data structures."""
         logger.info("Applying basketball-specific validation rules...")
 
-        validation_results: Dict[str, List[Dict[str, Any]]] = {"passed": [], "failed": [], "warnings": []}
+        validation_results: Dict[str, list[Dict[str, Any]]] = {
+            "passed": [],
+            "failed": [],
+            "warnings": [],
+        }
 
         # Define validation rules based on CSV type
         csv_type = self._infer_csv_type()
@@ -335,7 +339,6 @@ class NBACSVAnalyzer:
             "per36minutes.csv": "per36_minutes",
             "other_stats": "other_stats",
             "other_stats.csv": "other_stats",
-            "playercareerinfo": "player_career_info",
             "playerdirectory": "player_directory",
             "playershooting": "player_shooting",
             "playerplaybyplay": "player_playbyplay",
@@ -430,38 +433,44 @@ class NBACSVAnalyzer:
         for col in self.df.columns:
             null_count = null_counts[col]
             completeness = (total_rows - null_count) / total_rows
-            # Convert Series to float for type compatibility
-            # Convert polars Series to scalar float for type compatibility
-            # Handle polars Series conversion properly
+            # Handle polars Series conversion properly for type compatibility
             try:
-                # For polars Series, use item() method
                 completeness_value = completeness.item()
-            except AttributeError:
-                # For other types, convert to float directly
-                completeness_value = float(completeness)
+            except (AttributeError, TypeError):
+                # Convert to pandas Series first, then to float
+                completeness_value = float(completeness.to_pandas().iloc[0])
             completeness_scores[col] = completeness_value
             logger.debug(f"Column {col} completeness: {completeness_value}")
 
         avg_completeness = np.mean(list(completeness_scores.values()))
 
         if avg_completeness > 0.95:
-            logger.debug(f"Data completeness passed: {avg_completeness:.3f}")
-            return {"status": "passed", "message": f"{avg_completeness:.1%}", "details": []}
-        elif avg_completeness > 0.80:
-            logger.debug(f"Data completeness warning: {avg_completeness:.3f}")
-            return {"status": "warning", "message": f"{avg_completeness:.1%}", "details": []}
-        else:
-            logger.debug(f"Data completeness failed: {avg_completeness:.3f}")
+            logger.debug("Data completeness passed: %.3f", avg_completeness)
             return {
-                "status": "failed",
+                "status": "passed",
                 "message": f"{avg_completeness:.1%}",
-                "details": [str(k) + ": " + str(v) for k, v in completeness_scores.items()],
+                "details": [],
             }
+        if avg_completeness > 0.80:
+            logger.debug("Data completeness warning: %.3f", avg_completeness)
+            return {
+                "status": "warning",
+                "message": f"{avg_completeness:.1%}",
+                "details": [],
+            }
+
+        logger.debug("Data completeness failed: %.3f", avg_completeness)
+        detail_lines = [f"{col}: {score}" for col, score in completeness_scores.items()]
+        return {
+            "status": "failed",
+            "message": f"{avg_completeness:.1%}",
+            "details": detail_lines,
+        }
 
     def _validate_data_types(self) -> ValidationResult:
         """Validate data types are appropriate."""
-        # This is a basic check - could be enhanced with more sophisticated type validation
-        issues: List[str] = []
+        # Basic check only; consider adding more sophisticated type validation
+        issues: list[str] = []
 
         for col in self.df.columns:
             dtype = self.df[col].dtype
@@ -488,7 +497,7 @@ class NBACSVAnalyzer:
 
     def _validate_logical_constraints(self) -> ValidationResult:
         """Validate basic logical constraints."""
-        issues: List[str] = []
+        issues: list[str] = []
 
         # Check for negative values in count statistics
         count_columns = [
@@ -531,7 +540,7 @@ class NBACSVAnalyzer:
 
     def _validate_shooting_logic(self) -> ValidationResult:
         """Validate shooting statistics logic (FGM ≤ FGA, etc.)."""
-        issues = []
+        issues: list[str] = []
 
         # FGM ≤ FGA
         if "FGM" in self.df.columns and "FGA" in self.df.columns:
@@ -552,17 +561,21 @@ class NBACSVAnalyzer:
                 issues.append(f"FG3M > FG3A in {violations} rows")
 
         if not issues:
-            return {"status": "passed", "message": "Shooting logic validation passed", "details": []}
-        else:
             return {
-                "status": "failed",
-                "message": f"Shooting logic violations: {len(issues)}",
-                "details": issues,
+                "status": "passed",
+                "message": "Shooting logic validation passed",
+                "details": [],
             }
+
+        return {
+            "status": "failed",
+            "message": f"Shooting logic violations: {len(issues)}",
+            "details": issues,
+        }
 
     def _validate_efficiency_ranges(self) -> ValidationResult:
         """Validate efficiency metrics are in reasonable ranges."""
-        issues = []
+        issues: list[str] = []
 
         # Field Goal Percentage (0-100%)
         if "FG_PCT" in self.df.columns:
@@ -590,16 +603,16 @@ class NBACSVAnalyzer:
                 "message": "Efficiency ranges validation passed",
                 "details": [],
             }
-        else:
-            return {
-                "status": "failed",
-                "message": f"Efficiency range violations: {len(issues)}",
-                "details": issues,
-            }
+
+        return {
+            "status": "failed",
+            "message": f"Efficiency range violations: {len(issues)}",
+            "details": issues,
+        }
 
     def _validate_per_ranges(self) -> ValidationResult:
         """Validate PER is in reasonable ranges (typically 5-35)."""
-        issues = []
+        issues: list[str] = []
 
         if "PER" in self.df.columns:
             out_of_range = ((self.df["PER"] < 0) | (self.df["PER"] > 40)).sum()
@@ -609,28 +622,40 @@ class NBACSVAnalyzer:
                 )
 
         if not issues:
-            return {"status": "passed", "message": "PER ranges validation passed", "details": []}
-        else:
             return {
-                "status": "failed",
-                "message": f"PER range violations: {len(issues)}",
-                "details": issues,
+                "status": "passed",
+                "message": "PER ranges validation passed",
+                "details": [],
             }
+
+        return {
+            "status": "failed",
+            "message": f"PER range violations: {len(issues)}",
+            "details": issues,
+        }
 
     def _validate_temporal_consistency(self) -> ValidationResult:
         """Validate temporal consistency in play-by-play data."""
         # This would validate game clock progression, quarter transitions, etc.
         # Simplified version for now
-        return {"status": "passed", "message": "Temporal consistency validation passed", "details": []}
+        return {
+            "status": "passed",
+            "message": "Temporal consistency validation passed",
+            "details": [],
+        }
 
     def _validate_score_progression(self) -> ValidationResult:
         """Validate score progression makes sense."""
         # This would validate score changes match event types
-        return {"status": "passed", "message": "Score progression validation passed", "details": []}
+        return {
+            "status": "passed",
+            "message": "Score progression validation passed",
+            "details": [],
+        }
 
     def _validate_score_calculation(self) -> ValidationResult:
         """Validate score calculations match expected formulas."""
-        issues = []
+        issues: list[str] = []
 
         # Basic score validation: PTS should roughly equal 2*FGM + FTM + 3*FG3M
         if all(col in self.df.columns for col in ["PTS", "FGM", "FTM", "FG3M"]):
@@ -647,16 +672,16 @@ class NBACSVAnalyzer:
                 "message": "Score calculation validation passed",
                 "details": [],
             }
-        else:
-            return {
-                "status": "failed",
-                "message": f"Score calculation violations: {len(issues)}",
-                "details": issues,
-            }
+
+        return {
+            "status": "failed",
+            "message": f"Score calculation violations: {len(issues)}",
+            "details": issues,
+        }
 
     def _validate_game_logic(self) -> ValidationResult:
         """Validate basic game logic."""
-        issues = []
+        issues: list[str] = []
 
         # Home and away scores should be positive
         if "HOME_PTS" in self.df.columns:
@@ -670,17 +695,21 @@ class NBACSVAnalyzer:
                 issues.append(f"Negative away scores in {negative_scores} rows")
 
         if not issues:
-            return {"status": "passed", "message": "Game logic validation passed", "details": []}
-        else:
             return {
-                "status": "failed",
-                "message": f"Game logic violations: {len(issues)}",
-                "details": issues,
+                "status": "passed",
+                "message": "Game logic validation passed",
+                "details": [],
             }
+
+        return {
+            "status": "failed",
+            "message": f"Game logic violations: {len(issues)}",
+            "details": issues,
+        }
 
     def _validate_draft_logic(self) -> ValidationResult:
         """Validate draft-specific logic."""
-        issues = []
+        issues: list[str] = []
 
         # Draft picks should be 1-60 (2 rounds of 30)
         if "OVERALL_PICK" in self.df.columns:
@@ -693,19 +722,24 @@ class NBACSVAnalyzer:
                 )
 
         if not issues:
-            return {"status": "passed", "message": "Draft logic validation passed", "details": []}
-        else:
             return {
-                "status": "failed",
-                "message": f"Draft logic violations: {len(issues)}",
-                "details": issues,
+                "status": "passed",
+                "message": "Draft logic validation passed",
+                "details": [],
             }
 
-    def generate_visualizations(self) -> List[str]:
+        return {
+            "status": "failed",
+            "message": f"Draft logic violations: {len(issues)}",
+            "details": issues,
+        }
+
+    @no_type_check
+    def generate_visualizations(self) -> list[str]:
         """Generate visualizations for the dataset."""
         logger.info("Generating visualizations...")
 
-        saved_plots = []
+        saved_plots: list[str] = []
 
         try:
             # Set up the plotting style
@@ -798,9 +832,6 @@ class NBACSVAnalyzer:
                 saved_plots.append(str(plot_path))
                 plt.close()
 
-            # Add explicit type annotation for saved_plots
-            saved_plots: List[str] = []
-            # ... existing code ...
             logger.info(f"Generated {len(saved_plots)} visualizations")
 
         except Exception as e:
@@ -812,7 +843,7 @@ class NBACSVAnalyzer:
         """Calculate overall data quality metrics."""
         logger.info("Calculating data quality metrics...")
 
-        metrics = {
+        metrics: Dict[str, Any] = {
             "total_rows": len(self.df),
             "total_columns": len(self.df.columns),
             "duplicate_rows": self.df.is_duplicated().sum(),
@@ -824,11 +855,12 @@ class NBACSVAnalyzer:
         }
 
         # Completeness score
-        null_counts = self.df.null_count()
-        completeness_scores = []
+        null_counts = self.df.null_count().to_dicts()[0]
+        completeness_scores: list[float] = []
         for col in self.df.columns:
-            completeness = (len(self.df) - null_counts[col]) / len(self.df)
-            completeness_scores.append(completeness)
+            col_nulls = int(null_counts.get(col, 0))
+            completeness = (len(self.df) - col_nulls) / len(self.df)
+            completeness_scores.append(float(completeness))
         metrics["completeness_score"] = np.mean(completeness_scores) * 100
 
         # Uniqueness score (inverse of duplication)
@@ -868,7 +900,7 @@ class NBACSVAnalyzer:
         quality_metrics = self.calculate_quality_metrics()
 
         # Combine all results
-        summary = {
+        summary: Dict[str, Any] = {
             "csv_file": self.csv_name,
             "analysis_timestamp": str(datetime.now()),
             "data_overview": {
@@ -991,12 +1023,13 @@ def analyze_single_csv(csv_path: str, output_dir: str = "./reports") -> str:
     return analyzer.run_full_analysis()
 
 
-def analyze_all_csvs(csv_dir: str, output_dir: str = "./reports") -> List[str]:
+def analyze_all_csvs(csv_dir: str, output_dir: str = "./reports") -> list[str]:
     """Analyze all CSV files in a directory."""
     csv_dir_path = Path(csv_dir)
     output_dir_path = Path(output_dir)
+    output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    results = []
+    results: list[str] = []
     csv_files = list(csv_dir_path.glob("*.csv"))
 
     logger.info(f"Found {len(csv_files)} CSV files to analyze")
