@@ -65,7 +65,7 @@ except ImportError as exc:
 warnings.filterwarnings("ignore")
 
 # Setup comprehensive logging with file and console handlers
-def setup_logging():
+def setup_logging() -> logging.Logger:
     """Configure comprehensive logging to both file and console."""
     log_dir = Path(__file__).parent / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -296,12 +296,10 @@ class NBACSVAnalyzer:
             profile_dict = profile.to_json()
             logger.debug(f"Profile JSON length: {len(profile_dict)} characters")
             
-            profile_data = json.loads(profile_dict)
-            profile_keys = (
-                list(profile_data.keys())
-                if isinstance(profile_data, dict)
-                else 'NOT A DICT'
-            )
+            profile_data: Dict[str, Any] = json.loads(profile_dict)
+            # profile_data is always a dict, so no need to check its type
+
+            profile_keys: list[str] = list(profile_data.keys())
             logger.debug(
                 f"Profile data type: {type(profile_data)}, keys: {profile_keys}"
             )
@@ -310,27 +308,12 @@ class NBACSVAnalyzer:
             gc.collect()
             
             # Defensive extraction with logging
-            result = {
-                "overview": (
-                    profile_data.get("overview", {})
-                    if isinstance(profile_data, dict) else {}
-                ),
-                "variables": (
-                    profile_data.get("variables", {})
-                    if isinstance(profile_data, dict) else {}
-                ),
-                "correlations": (
-                    profile_data.get("correlations", {})
-                    if isinstance(profile_data, dict) else {}
-                ),
-                "missing": (
-                    profile_data.get("missing", {})
-                    if isinstance(profile_data, dict) else {}
-                ),
-                "duplicates": (
-                    profile_data.get("duplicates", {})
-                    if isinstance(profile_data, dict) else {}
-                ),
+            result: Dict[str, Any] = {
+                "overview": profile_data.get("overview", {}),
+                "variables": profile_data.get("variables", {}),
+                "correlations": profile_data.get("correlations", {}),
+                "missing": profile_data.get("missing", {}),
+                "duplicates": profile_data.get("duplicates", {}),
                 "report_path": str(report_path),
             }
             logger.debug(f"Extracted profile result keys: {list(result.keys())}")
@@ -374,11 +357,15 @@ class NBACSVAnalyzer:
             try:
                 logger.debug(f"Executing validation rule: {rule_name}")
                 result = rule_func()
+                if isinstance(result, dict):
+                    result_dict: dict[str, Any] = result  # type: ignore
+                    status_str = str(result_dict.get('status', 'UNKNOWN'))
+                else:
+                    status_str = 'UNKNOWN'
                 logger.debug(
-                    f"Rule '{rule_name}' returned: "
-                    f"{result.get('status', 'UNKNOWN')} - type: {type(result)}"
+                    f"Rule '{rule_name}' returned: {status_str} - type: {type(result)}"
                 )
-                
+
                 if not isinstance(result, dict):
                     logger.error(
                         f"Rule '{rule_name}' returned non-dict type: "
@@ -389,8 +376,9 @@ class NBACSVAnalyzer:
                         "message": f"Rule returned invalid type: {type(result)}"
                     })
                     continue
-                
-                if result["status"] == "passed":
+
+                status = result.get("status")
+                if status == "passed":
                     logger.debug(f"✓ Rule '{rule_name}' PASSED")
                     validation_results["passed"].append(
                         {
@@ -398,17 +386,14 @@ class NBACSVAnalyzer:
                             "message": result.get("message", "Validation passed"),
                         }
                     )
-                elif result["status"] == "failed":
-                    details = result.get("details", [])
+                elif status == "failed":
                     logger.warning(
                         f"✗ Rule '{rule_name}' FAILED: "
                         f"{result.get('message', 'No message')}"
                     )
+                    details = result.get("details")
                     if details:
-                        if len(details) > 3:
-                            logger.debug(f"  Failure details: {details[:3]}...")
-                        else:
-                            logger.debug(f"  Failure details: {details}")
+                        logger.debug(f"  Failure details: {details}")
                     validation_results["failed"].append(
                         {
                             "rule": rule_name,
@@ -416,7 +401,7 @@ class NBACSVAnalyzer:
                             "details": details,
                         }
                     )
-                elif result["status"] == "warning":
+                elif status == "warning":
                     logger.info(
                         f"⚠ Rule '{rule_name}' WARNING: "
                         f"{result.get('message', 'No message')}"
@@ -430,7 +415,7 @@ class NBACSVAnalyzer:
                 else:
                     logger.warning(
                         f"Rule '{rule_name}' returned unknown status: "
-                        f"{result.get('status', 'None')}"
+                        f"{status}"
                     )
             except Exception as e:
                 logger.error(f"Error executing rule '{rule_name}': {e}")
