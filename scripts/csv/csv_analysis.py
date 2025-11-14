@@ -22,14 +22,23 @@ import argparse
 import json
 import logging
 import warnings
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, TypedDict, Union
+from typing import Any, Dict, List, TypedDict, Union, TYPE_CHECKING
 
 import matplotlib.pyplot as plt
+import matplotlib.figure
+import matplotlib.axes
 import numpy as np
 import polars as pl
 import seaborn as sns
 from frictionless import Resource, validate
+
+# Type checking imports
+if TYPE_CHECKING:
+    import matplotlib.figure as _figure
+    import matplotlib.axes as _axes
+    import seaborn as _seaborn
 
 # Type definitions for better type safety
 class ValidationResult(TypedDict):
@@ -61,8 +70,10 @@ logger = logging.getLogger(__name__)
 logger.info("Attempting to import ydata-profiling...")
 
 try:
-    from ydata_profiling import ProfileReport
+    from ydata_profiling import ProfileReport as YDataProfileReport
     logger.info("ydata-profiling import successful")
+    # Use alias to avoid type conflicts
+    ProfileReport = YDataProfileReport
 except ImportError as e:
     logger.error(f"ydata-profiling import failed: {e}")
     logger.info("Creating mock ProfileReport for type checking")
@@ -420,9 +431,16 @@ class NBACSVAnalyzer:
             null_count = null_counts[col]
             completeness = (total_rows - null_count) / total_rows
             # Convert Series to float for type compatibility
-            completeness_float = float(completeness) if hasattr(completeness, 'item') else completeness
-            completeness_scores[col] = completeness_float
-            logger.debug(f"Column {col} completeness: {completeness_float}")
+            # Convert polars Series to scalar float for type compatibility
+            # Handle polars Series conversion properly
+            try:
+                # For polars Series, use item() method
+                completeness_value = completeness.item()
+            except AttributeError:
+                # For other types, convert to float directly
+                completeness_value = float(completeness)
+            completeness_scores[col] = completeness_value
+            logger.debug(f"Column {col} completeness: {completeness_value}")
 
         avg_completeness = np.mean(list(completeness_scores.values()))
 
@@ -437,7 +455,7 @@ class NBACSVAnalyzer:
             return {
                 "status": "failed",
                 "message": f"{avg_completeness:.1%}",
-                "details": completeness_scores,
+                "details": [str(k) + ": " + str(v) for k, v in completeness_scores.items()],
             }
 
     def _validate_data_types(self) -> ValidationResult:
@@ -570,7 +588,7 @@ class NBACSVAnalyzer:
             return {
                 "status": "passed",
                 "message": "Efficiency ranges validation passed",
-                "details": []
+                "details": [],
             }
         else:
             return {
@@ -627,7 +645,7 @@ class NBACSVAnalyzer:
             return {
                 "status": "passed",
                 "message": "Score calculation validation passed",
-                "details": []
+                "details": [],
             }
         else:
             return {
@@ -699,7 +717,7 @@ class NBACSVAnalyzer:
                 plt.figure(figsize=(12, 8))
                 missing_data = self.df.null_count().to_pandas()
                 if missing_data.sum() > 0:
-                    sns.barplot(x=missing_data.index, y=missing_data.values)
+                    ax: matplotlib.axes.Axes = sns.barplot(x=missing_data.index, y=missing_data.values)
                     plt.xticks(rotation=45, ha="right")
                     plt.title(f"Missing Data by Column - {self.csv_name}")
                     plt.ylabel("Missing Values Count")
@@ -717,11 +735,11 @@ class NBACSVAnalyzer:
                 if self.df[col].dtype in [pl.Int64, pl.Float64]
             ]
             if len(numeric_cols) > 1 and len(numeric_cols) <= 20:
-                plt.figure(figsize=(10, 8))
+                fig: matplotlib.figure.Figure = plt.figure(figsize=(10, 8))
                 corr_matrix = self.df.select(numeric_cols).to_pandas().corr()
 
                 mask = np.triu(np.ones_like(corr_matrix, dtype=bool))
-                sns.heatmap(
+                ax: matplotlib.axes.Axes = sns.heatmap(
                     corr_matrix,
                     mask=mask,
                     annot=True,
@@ -751,6 +769,8 @@ class NBACSVAnalyzer:
                 fig, axes = plt.subplots(
                     n_rows, n_cols, figsize=(5 * n_cols, 4 * n_rows)
                 )
+                # Use fig to avoid "Variable not accessed" warning
+                _ = fig  # Mark as used
                 if n_rows == 1:
                     axes = axes.reshape(1, -1)
                 elif n_cols == 1:
@@ -762,7 +782,7 @@ class NBACSVAnalyzer:
 
                     data = self.df[metric].drop_nulls().to_pandas()
                     if len(data) > 0:
-                        sns.histplot(data, ax=ax, kde=True, bins=30)
+                        sns.histplot(data=data, ax=ax, kde=True, bins=30)
                         ax.set_title(f"{metric} Distribution")
                         ax.set_xlabel(metric)
 
@@ -778,6 +798,9 @@ class NBACSVAnalyzer:
                 saved_plots.append(str(plot_path))
                 plt.close()
 
+            # Add explicit type annotation for saved_plots
+            saved_plots: List[str] = []
+            # ... existing code ...
             logger.info(f"Generated {len(saved_plots)} visualizations")
 
         except Exception as e:
@@ -847,7 +870,7 @@ class NBACSVAnalyzer:
         # Combine all results
         summary = {
             "csv_file": self.csv_name,
-            "analysis_timestamp": str(pl.datetime.now()),
+            "analysis_timestamp": str(datetime.now()),
             "data_overview": {
                 "rows": len(self.df),
                 "columns": len(self.df.columns),
@@ -970,18 +993,18 @@ def analyze_single_csv(csv_path: str, output_dir: str = "./reports") -> str:
 
 def analyze_all_csvs(csv_dir: str, output_dir: str = "./reports") -> List[str]:
     """Analyze all CSV files in a directory."""
-    csv_dir = Path(csv_dir)
-    output_dir = Path(output_dir)
+    csv_dir_path = Path(csv_dir)
+    output_dir_path = Path(output_dir)
 
     results = []
-    csv_files = list(csv_dir.glob("*.csv"))
+    csv_files = list(csv_dir_path.glob("*.csv"))
 
     logger.info(f"Found {len(csv_files)} CSV files to analyze")
 
     for csv_file in csv_files:
         try:
             logger.info(f"Analyzing {csv_file.name}...")
-            result = analyze_single_csv(str(csv_file), str(output_dir / csv_file.stem))
+            result = analyze_single_csv(str(csv_file), str(output_dir_path / csv_file.stem))
             results.append(result)
         except Exception as e:
             logger.error(f"Failed to analyze {csv_file.name}: {e}")
