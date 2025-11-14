@@ -208,3 +208,7 @@ $RECYCLE.BIN/
 *.log
 /.rooroo
 /.roo
+
+/analysis/csv/output
+/analysis/csv/src/parallel_test
+/analysis/csv/src/test_output
