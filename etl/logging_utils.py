@@ -33,7 +33,7 @@ def log_structured(
     logger: logging.Logger,
     level: int,
     message: str,
-    **fields: Dict[str, Any],
+    **fields: Any,
 ) -> None:
     """
     Lightweight structured logging wrapper: appends key=value fields.
