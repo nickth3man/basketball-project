@@ -228,53 +228,54 @@ async def leaderboards(
             detail="page and page_size must be positive",
         )
 
-    build_query = _get_scope_stat(req)
-    if build_query is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Unsupported scope/stat combination",
-        )
 
+    from api.query_builder import build_leaderboard_query
     echo: Dict[str, Any] = {
         "scope": req.scope,
         "stat": req.stat,
     }
 
-    # Apply filters based on request parameters
-    filters: List[Any] = []
+    # Map scope/stat to table/metric
+    scope_table_map = {
+        "player_season": ("player_season_totals", "pts", "season_end_year"),
+        "player_career": ("player_season_totals", "pts", None),
+        "team_season": ("team_season_totals", "pts", "season_end_year"),
+        "single_game": ("boxscore_player", "pts", "game_id"),
+    }
+    if req.scope not in scope_table_map:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported scope/stat combination",
+        )
+    table_name, metric, season_col = scope_table_map[req.scope]
 
-    if req.season_end_year is not None:
-        echo["season_end_year"] = req.season_end_year
-        filters.append(player_season_table.c.season_end_year == req.season_end_year)
-
-    if req.is_playoffs is not None:
-        echo["is_playoffs"] = req.is_playoffs
-        filters.append(player_season_table.c.is_playoffs == req.is_playoffs)
-
-    # Build base query and get season column
-    base, season_col = build_query(filters)
-
-    # Get total count
-    count_stmt = select(func.count()).select_from(base.subquery())
-    total = (await db.execute(count_stmt)).scalar_one()
-
-    # Add pagination and execute
+    season = str(req.season_end_year) if req.season_end_year is not None else None
+    limit = page_size
     offset = (page - 1) * page_size
-    rows = (await db.execute(base.limit(page_size).offset(offset))).mappings()
+
+    sql = build_leaderboard_query(table_name, metric, season=season, limit=limit)
+    # Add offset manually for pagination
+    sql += f" OFFSET {offset}"
+
+    result = await db.execute(sql)
+    rows = result.fetchall()
+
+    # For total count, run a count query
+    count_sql = f"SELECT COUNT(*) FROM {table_name}"
+    if season:
+        count_sql += f" WHERE season = '{season}'"
+    total = (await db.execute(count_sql)).scalar_one()
 
     data: List[LeaderboardsResponseRow] = []
     for row in rows:
+        # Map row fields to response
         data.append(
             LeaderboardsResponseRow(
-                subject_id=row["subject_id"],
-                label=row["label"],
-                stat=float(row["stat"]) if row["stat"] is not None else 0.0,
-                season_end_year=(
-                    int(row["season_end_year"])
-                    if season_col and row[season_col] is not None
-                    else None
-                ),
-                game_id=row["game_id"] if "game_id" in row else None,
+                subject_id=row[0],
+                label=None,  # label mapping can be added if needed
+                stat=float(row[1]) if row[1] is not None else 0.0,
+                season_end_year=int(season) if season else None,
+                game_id=row[2] if season_col == "game_id" and len(row) > 2 else None,
             )
         )
 

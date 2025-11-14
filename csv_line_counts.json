@@ -1,0 +1,230 @@
+[
+  {
+    "file": "all_starselections.csv",
+    "lines": 2001,
+    "size_bytes": 67946,
+    "sha256": "abedd9e3c6d411cd1bca29da29ebf4f1b587dbe4ac4dcdd98c05d768f3876f37"
+  },
+  {
+    "file": "common_player_info.csv",
+    "lines": 4172,
+    "size_bytes": 1030547,
+    "sha256": "0af8b4ab23f53351c1adbbabd7f664d73d711c860eb4d6da7e781b60896f68e5"
+  },
+  {
+    "file": "draft_combine_stats.csv",
+    "lines": 1203,
+    "size_bytes": 204037,
+    "sha256": "ff8cc1021edda5c8dd7804cdb4047ae3e2576d89302632bf59eb814198034a08"
+  },
+  {
+    "file": "draft_history.csv",
+    "lines": 7991,
+    "size_bytes": 829320,
+    "sha256": "e018e19c0e76b4bbb6d94cd48115e12dd83755c67db8c43dbd310a6c7d4afcc8"
+  },
+  {
+    "file": "endofseasonteams.csv",
+    "lines": 2191,
+    "size_bytes": 130844,
+    "sha256": "10327c0af4fede8da7dc491e510964f3a42754af9fe67fe5889a9c7436be46ec"
+  },
+  {
+    "file": "endofseasonteams_voting.csv",
+    "lines": 4413,
+    "size_bytes": 340892,
+    "sha256": "d1065d065f5e00e011280141d9f2a244b54dec6edcfb4c2af1cc46bea7b0f954"
+  },
+  {
+    "file": "game_info.csv",
+    "lines": 58054,
+    "size_bytes": 2395643,
+    "sha256": "4626495f992a9ff044275b1b486101ca67c23c2998a687d6e495cca4eed6a96a"
+  },
+  {
+    "file": "games.csv",
+    "lines": 65699,
+    "size_bytes": 20314762,
+    "sha256": "ae3b37ed89219b4c6c0aad4a3db7916b6d9cf64ad99a0adcd769d860ab052a36"
+  },
+  {
+    "file": "gamesummary.csv",
+    "lines": 58111,
+    "size_bytes": 5622633,
+    "sha256": "5817df7e838b3fad614c757cbecd9dcd9a7e7f5cc81b2f02187f95263ac66e09"
+  },
+  {
+    "file": "inactive_players.csv",
+    "lines": 110192,
+    "size_bytes": 7379185,
+    "sha256": "17fd55ee7233d472ca674f6ce28b87321eb9514e5d534c05526622df41e1e3bf"
+  },
+  {
+    "file": "linescore.csv",
+    "lines": 58054,
+    "size_bytes": 10699673,
+    "sha256": "a853caf0cf8e6bd31919daf0b3e7a9400e7d0df33da6895819c9a71ee885419c"
+  },
+  {
+    "file": "officials.csv",
+    "lines": 70972,
+    "size_bytes": 2335666,
+    "sha256": "1ebcfe4cea69d82ba643b72029184874aabbe06749213f47eeb5219a39058fd1"
+  },
+  {
+    "file": "oppteamstats.csv",
+    "lines": 1877,
+    "size_bytes": 267677,
+    "sha256": "39ce0543ef46ded67cc64843b33e202a95449f26e737a5f9a3904a3a07f1eae5"
+  },
+  {
+    "file": "oppteamstatsper100poss.csv",
+    "lines": 1433,
+    "size_bytes": 210978,
+    "sha256": "b9452961b694c7702e0b975adac78b87b3b1685466e7a5a5152d16b4f95fc0a9"
+  },
+  {
+    "file": "oppteamstatspergame.csv",
+    "lines": 1877,
+    "size_bytes": 264330,
+    "sha256": "94759c030f2a28e2702ec219ebe74952cb91eb3f5c44a44f2545939860ac8988"
+  },
+  {
+    "file": "other_stats.csv",
+    "lines": 28272,
+    "size_bytes": 3498831,
+    "sha256": "3d65f73d02ce685434f88bf00f47ead10d613789ad1f1f44cc3b63f637c5508d"
+  },
+  {
+    "file": "play_by_play.csv",
+    "lines": 13592900,
+    "size_bytes": 2256476839,
+    "sha256": "aaac7efb8da825c2b90223d68781b0e856d2fe525e05264ddb3ae14c87735fcf"
+  },
+  {
+    "file": "player.csv",
+    "lines": 4832,
+    "size_bytes": 170184,
+    "sha256": "bebcd3d9f112106997f5c6bf7d1ad4b240cb80ea2b141b0f075f20359983b163"
+  },
+  {
+    "file": "playerawardshares.csv",
+    "lines": 3377,
+    "size_bytes": 213623,
+    "sha256": "e07c72ba77a3e9d899d8bec1b73134a2d64542c460e785c5ddb651bc61c9c8b7"
+  },
+  {
+    "file": "playercareerinfo.csv",
+    "lines": 5314,
+    "size_bytes": 210601,
+    "sha256": "a932d19f4e58b208807e164494b0c524e8d99632100f86221a320741dac1eff5"
+  },
+  {
+    "file": "playerdirectory.csv",
+    "lines": 5286,
+    "size_bytes": 385579,
+    "sha256": "20ca725d8b2518bea18bc64e40d75ac4b7526b9aab9dc8ecef7b5231411b2053"
+  },
+  {
+    "file": "playerplaybyplay.csv",
+    "lines": 17521,
+    "size_bytes": 1817747,
+    "sha256": "74a689052fbf5751af51c109879ba490a72a161068cef69506afb447068a2bce"
+  },
+  {
+    "file": "playerseasoninfo.csv",
+    "lines": 32606,
+    "size_bytes": 1571892,
+    "sha256": "da9eb273a626787ff7cf41cb8959b7f37add1617fa36d3f62357a8617fc24010"
+  },
+  {
+    "file": "playershooting.csv",
+    "lines": 17521,
+    "size_bytes": 2818552,
+    "sha256": "e7d16e3a1bc2fcb9bb07ee89310b438f27e12b25afa53f4e22c67c739ec08c5f"
+  },
+  {
+    "file": "playerstatsadvanced.csv",
+    "lines": 32606,
+    "size_bytes": 4634916,
+    "sha256": "e2ae4882f560b94f83b2eb005870885661875c2efd1966967a2b6fac2cc31813"
+  },
+  {
+    "file": "playerstatsper100poss.csv",
+    "lines": 26959,
+    "size_bytes": 4142921,
+    "sha256": "c02a26131bd9157e0132e84ae4551223f8735ca45178ae28479fcdd373f5a5ed"
+  },
+  {
+    "file": "playerstatsper36.csv",
+    "lines": 32606,
+    "size_bytes": 4668697,
+    "sha256": "7e7cdd8936063ab052035f67007b4b070370a5fa622c612c578e6927490264ee"
+  },
+  {
+    "file": "playerstatspergame.csv",
+    "lines": 32606,
+    "size_bytes": 4823745,
+    "sha256": "16c3bd8699cc0b332ed920d55339da8d1e681173786437c32d09fae556ac6bc2"
+  },
+  {
+    "file": "playerstatstotals.csv",
+    "lines": 32606,
+    "size_bytes": 4566451,
+    "sha256": "3406548a8be421dfd248edceb7efa8a7eba02aaf5eae26d1121e7f2484068cea"
+  },
+  {
+    "file": "team.csv",
+    "lines": 31,
+    "size_bytes": 2027,
+    "sha256": "eb26bf5d0525c8db067fb0c2718beae21e57c6b66af74eb3fce831b6e5d3dd61"
+  },
+  {
+    "file": "team_details.csv",
+    "lines": 26,
+    "size_bytes": 5548,
+    "sha256": "df940119df8a85fc4f502b16d54ba27e1d80ca35e0398a13c9acf613440f5366"
+  },
+  {
+    "file": "team_history.csv",
+    "lines": 53,
+    "size_bytes": 2070,
+    "sha256": "7d6dc3c449ba7fd38ca9c1c89aec2d76f6903b69eb8b84d2d02e558857ab69b7"
+  },
+  {
+    "file": "team_info_common.csv",
+    "lines": 1,
+    "size_bytes": 245,
+    "sha256": "3e082b7c34a613436b6f146e8c6f497acb5be3cb50669e6cf755a05d501a0492"
+  },
+  {
+    "file": "teamabbrev.csv",
+    "lines": 1872,
+    "size_bytes": 66389,
+    "sha256": "24a57f9232ea6874d2e3a9b1115034ef1b28979866b519e8d4d5193bc05f3960"
+  },
+  {
+    "file": "teamstats.csv",
+    "lines": 1877,
+    "size_bytes": 273850,
+    "sha256": "f00e48ecfa6ca5099bdd8e7e186be9af223604d0ae0b725f1eab6aa32b887570"
+  },
+  {
+    "file": "teamstatsper100poss.csv",
+    "lines": 1433,
+    "size_bytes": 210874,
+    "sha256": "e64428d54b921496c701f447c78b76069543658286af9b0c6f24c00dd45b3aa5"
+  },
+  {
+    "file": "teamstatspergame.csv",
+    "lines": 1877,
+    "size_bytes": 270508,
+    "sha256": "9a7f65312dbddee9391c5b2bd199f8b263dea8530c2a205ae6d3617453cfcff3"
+  },
+  {
+    "file": "teamsummaries.csv",
+    "lines": 1877,
+    "size_bytes": 327093,
+    "sha256": "417becba91fa560c6b29999c9b091c981ebb730f7119569e11d70219733a64ab"
+  }
+]

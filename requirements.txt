@@ -32,3 +32,18 @@ mkdocs-material==9.4.8
 # Performance monitoring
 prometheus-client==0.19.0
 structlog==23.2.0
+# Dynamic SQL query builder
+pypika==0.48.9
+
+# Data analysis and visualization
+polars==1.15.0
+numpy==1.26.4
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Data profiling and validation
+ydata-profiling==4.17.0
+frictionless==5.18.1
+
+# Additional dependencies for data analysis
+statsmodels==0.14.2
