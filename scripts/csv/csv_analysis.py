@@ -487,7 +487,11 @@ class NBACSVAnalyzer:
                     pass
 
         if not issues:
-            return {"status": "passed", "message": "Data types appear appropriate", "details": []}
+            return {
+                "status": "passed",
+                "message": "Data types appear appropriate",
+                "details": [],
+            }
         else:
             return {
                 "status": "warning",
@@ -751,7 +755,10 @@ class NBACSVAnalyzer:
                 plt.figure(figsize=(12, 8))
                 missing_data = self.df.null_count().to_pandas()
                 if missing_data.sum() > 0:
-                    ax: matplotlib.axes.Axes = sns.barplot(x=missing_data.index, y=missing_data.values)
+                    ax: matplotlib.axes.Axes = sns.barplot(
+                        x=missing_data.index,
+                        y=missing_data.values,
+                    )
                     plt.xticks(rotation=45, ha="right")
                     plt.title(f"Missing Data by Column - {self.csv_name}")
                     plt.ylabel("Missing Values Count")
@@ -951,8 +958,19 @@ class NBACSVAnalyzer:
     <style>
         body {{ font-family: Arial, sans-serif; margin: 40px; }}
         .header {{ background-color: #f0f0f0; padding: 20px; border-radius: 5px; }}
-        .section {{ margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }}
-        .metric {{ display: inline-block; margin: 10px; padding: 10px; background-color: #e8f4f8; border-radius: 3px; }}
+        .section {{
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }}
+        .metric {{
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            background-color: #e8f4f8;
+            border-radius: 3px;
+        }}
         .passed {{ color: green; }}
         .failed {{ color: red; }}
         .warning {{ color: orange; }}
@@ -977,33 +995,63 @@ class NBACSVAnalyzer:
 
     <div class="section">
         <h3>Data Quality Metrics</h3>
-        <div class="metric">Completeness: {summary["quality_metrics"]["completeness_score"]:.1f}%</div>
-        <div class="metric">Uniqueness: {summary["quality_metrics"]["uniqueness_score"]:.1f}%</div>
-        <div class="metric">Validity: {summary["quality_metrics"]["validity_score"]:.1f}%</div>
-        <div class="metric">Duplicates: {summary["quality_metrics"]["duplicate_rows"]:,} ({summary["quality_metrics"]["duplicate_percentage"]:.1f}%)</div>
+        <div class="metric">
+            Completeness: {summary["quality_metrics"]["completeness_score"]:.1f}%
+        </div>
+        <div class="metric">
+            Uniqueness: {summary["quality_metrics"]["uniqueness_score"]:.1f}%
+        </div>
+        <div class="metric">
+            Validity: {summary["quality_metrics"]["validity_score"]:.1f}%
+        </div>
+        <div class="metric">
+            Duplicates: {summary["quality_metrics"]["duplicate_rows"]:,}
+            ({summary["quality_metrics"]["duplicate_percentage"]:.1f}%)
+        </div>
     </div>
 
     <div class="section">
         <h3>Validation Results</h3>
         <h4>Frictionless Validation</h4>
-        <p class="{"passed" if summary["validation_results"]["frictionless"].get("valid", False) else "failed"}">
-            Valid: {summary["validation_results"]["frictionless"].get("valid", "N/A")}<br>
+        <p class="{
+            "passed"
+            if summary["validation_results"]["frictionless"].get("valid", False)
+            else "failed"
+        }">
+            Valid: {
+                summary["validation_results"]["frictionless"].get("valid", "N/A")
+            }<br>
             Errors: {summary["validation_results"]["frictionless"].get("errors", 0)}<br>
             Warnings: {summary["validation_results"]["frictionless"].get("warnings", 0)}
         </p>
 
         <h4>Basketball-Specific Validations</h4>
-        <p class="passed">Passed: {len(summary["validation_results"]["basketball_specific"].get("passed", []))}</p>
-        <p class="failed">Failed: {len(summary["validation_results"]["basketball_specific"].get("failed", []))}</p>
-        <p class="warning">Warnings: {len(summary["validation_results"]["basketball_specific"].get("warnings", []))}</p>
+        <p class="passed">
+            Passed: {len(summary["validation_results"]["basketball_specific"].get("passed", []))}
+        </p>
+        <p class="failed">
+            Failed: {len(summary["validation_results"]["basketball_specific"].get("failed", []))}
+        </p>
+        <p class="warning">
+            Warnings: {len(summary["validation_results"]["basketball_specific"].get("warnings", []))}
+        </p>
     </div>
 
     <div class="section">
         <h3>Generated Outputs</h3>
         <ul>
-            <li><a href="{summary["outputs"]["profile_report"]}">Data Profile Report</a></li>
-            <li>Visualizations: {len(summary["outputs"]["visualizations"])} plots generated</li>
-            <li>Reports Directory: {summary["outputs"]["reports_directory"]}</li>
+            <li>
+                <a href="{summary["outputs"]["profile_report"]}">
+                    Data Profile Report
+                </a>
+            </li>
+            <li>
+                Visualizations: {len(summary["outputs"]["visualizations"])}
+                plots generated
+            </li>
+            <li>
+                Reports Directory: {summary["outputs"]["reports_directory"]}
+            </li>
         </ul>
     </div>
 </body>
